@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Blog - SocialSetu Digital | Insights for Indian Brands</title>
+    <meta name="description" content="Growth tips, strategies, and case studies for Indian businesses. Learn how to scale your brand with Meta Ads, Instagram Reels, and WhatsApp Marketing.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --primary-gradient: linear-gradient(135deg, #FF6B35, #FF8C42);
+            --secondary: #1A1A2E;
+            --card-bg: #16213E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B8C8;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--secondary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, .font-display {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* --- READING PROGRESS --- */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            z-index: 1100;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        /* --- NAVBAR --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 20px 0;
+            transition: var(--transition);
+        }
+
+        nav.scrolled {
+            background: rgba(13, 13, 26, 0.85);
+            backdrop-filter: blur(15px);
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            text-decoration: none;
+            color: white;
+            font-weight: 800;
+        }
+
+        .logo span { color: var(--primary); }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover, .nav-links a.active { color: var(--primary); }
+
+        .nav-cta {
+            background: var(--primary-gradient);
+            padding: 10px 24px;
+            border-radius: 50px;
+            color: white !important;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        /* --- HERO --- */
+        .hero {
+            padding: 180px 0 80px;
+            text-align: center;
+            background: radial-gradient(circle at top center, rgba(255, 107, 53, 0.1), transparent 70%);
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 5vw, 64px);
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 20px;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        /* --- SEARCH & FILTERS --- */
+        .search-area {
+            max-width: 600px;
+            margin: 0 auto 60px;
+        }
+
+        .search-bar {
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            padding: 15px 25px;
+            color: white;
+            flex: 1;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-bar button {
+            background: var(--primary-gradient);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .category-pills {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+
+        .pill {
+            padding: 8px 24px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .pill.active, .pill:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* --- FEATURED POST --- */
+        .featured-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 80px;
+            display: flex;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .featured-card:hover { border-color: var(--primary); transform: translateY(-5px); }
+
+        .feat-img {
+            flex: 1;
+            background: var(--primary-gradient);
+            min-height: 400px;
+            position: relative;
+        }
+
+        .feat-content {
+            flex: 1;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .badge-feat {
+            background: var(--primary);
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
+            width: fit-content;
+            margin-bottom: 20px;
+        }
+
+        .cat { color: var(--primary); font-weight: 700; font-size: 14px; margin-right: 15px; }
+        .read-t { color: var(--text-secondary); font-size: 13px; }
+
+        .feat-title { font-size: 36px; margin: 15px 0 25px; line-height: 1.2; }
+        .feat-excerpt { color: var(--text-secondary); font-size: 18px; margin-bottom: 40px; }
+
+        .author-box { display: flex; align-items: center; gap: 15px; }
+        .avatar {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        /* --- BLOG GRID --- */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 60px;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin-bottom: 80px;
+        }
+
+        .blog-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 107, 53, 0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .card-img {
+            height: 220px;
+            background: var(--primary-gradient);
+            position: relative;
+        }
+
+        .card-content { padding: 30px; flex: 1; display: flex; flex-direction: column; }
+
+        .card-meta { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+
+        .card-title { font-size: 20px; margin-bottom: 15px; line-height: 1.3; }
+        .card-desc { color: var(--text-secondary); font-size: 15px; margin-bottom: 30px; flex: 1; }
+
+        .read-more {
+            color: var(--primary);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar { position: sticky; top: 120px; height: fit-content; }
+
+        .widget {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 32px;
+        }
+
+        .widget h4 { margin-bottom: 20px; font-size: 18px; position: relative; padding-bottom: 10px; }
+        .widget h4::after { content: ''; position: absolute; bottom: 0; left: 0; width: 40px; height: 3px; background: var(--primary); }
+
+        .sidebar-list { list-style: none; }
+        .sidebar-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sidebar-list li:hover { color: var(--primary); }
+        .sidebar-list li span { background: rgba(255, 255, 255, 0.05); padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+
+        .tag-cloud { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tag { background: rgba(255, 255, 255, 0.05); padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+        /* --- NEWSLETTER --- */
+        .newsletter-banner {
+            background: var(--primary-gradient);
+            border-radius: 30px;
+            padding: 80px 40px;
+            text-align: center;
+            margin: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .newsletter-banner h2 { font-size: 42px; margin-bottom: 15px; }
+        .newsletter-banner p { font-size: 18px; margin-bottom: 40px; }
+
+        .news-form {
+            display: flex;
+            max-width: 600px;
+            margin: 0 auto;
+            gap: 15px;
+        }
+
+        .news-form input {
+            flex: 1;
+            padding: 18px 25px;
+            border-radius: 50px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .news-form button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .news-form button:hover { background: #000; transform: scale(1.05); }
+
+        .social-proof { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 30px; }
+        .faces { display: flex; margin-left: 10px; }
+        .face { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--primary); margin-left: -10px; background: #ddd; }
+
+        /* --- LOAD MORE --- */
+        .load-more-btn {
+            display: block;
+            margin: 0 auto 100px;
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .load-more-btn:hover { background: var(--primary); color: white; }
+
+        /* --- TOAST --- */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translate(-50%, 100px);
+            background: #00D084;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            z-index: 2000;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        #toast.show { transform: translate(-50%, 0); }
+
+        /* --- FOOTER --- */
+        footer { padding: 100px 0 40px; background: #060610; }
+        .ft-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 80px; }
+        .ft-logo { font-size: 32px; color: white; text-decoration: none; display: block; margin-bottom: 20px; }
+        .ft-logo span { color: var(--primary); }
+        .ft-desc { color: var(--text-secondary); margin-bottom: 30px; }
+        .ft-links h5 { margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px; font-size: 14px; }
+        .ft-links li { list-style: none; margin-bottom: 15px; }
+        .ft-links a { text-decoration: none; color: var(--text-secondary); transition: var(--transition); }
+        .ft-links a:hover { color: var(--primary); }
+        .ft-bottom { border-top: 1px solid rgba(255,255,255,0.05); padding-top: 40px; display: flex; justify-content: space-between; color: var(--text-secondary); font-size: 14px; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1100px) {
+            .main-layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .ft-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .featured-card { flex-direction: column; }
+            .feat-img { min-height: 250px; }
+            .feat-content { padding: 40px; }
+            .ft-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 40px; }
+            .blog-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .news-form { flex-direction: column; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="progress-bar"></div>
+    <div id="toast">Successfully Subscribed! 🚀</div>
+
+    <!-- NAVBAR -->
+    <nav id="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">Social<span>Setu</span>🇮🇳</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="#">Services</a>
+                <a href="#">Industries</a>
+                <a href="case-studies.html">Results</a>
+                <a href="#" class="active">Blog</a>
+                <a href="#">Pricing</a>
+                <a href="#" class="nav-cta">Get Free Audit</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+            <h1 data-aos="fade-up">Marketing Insights for Indian Businesses</h1>
+            <p data-aos="fade-up" data-aos-delay="100">Tips, strategies and case studies to grow your brand from Mumbai to Mizoram.</p>
+            
+            <div class="search-area" data-aos="fade-up" data-aos-delay="200">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search for strategies, tips, case studies...">
+                    <button id="searchBtn">Search</button>
+                </div>
+            </div>
+
+            <div class="category-pills" id="categoryPills" data-aos="fade-up" data-aos-delay="300">
+                <div class="pill active" data-cat="all">All</div>
+                <div class="pill" data-cat="Social Media">Social Media</div>
+                <div class="pill" data-cat="Meta Ads">Meta Ads</div>
+                <div class="pill" data-cat="Content">Content</div>
+                <div class="pill" data-cat="WhatsApp">WhatsApp</div>
+                <div class="pill" data-cat="LinkedIn">LinkedIn</div>
+                <div class="pill" data-cat="D2C Brands">D2C Brands</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- FEATURED POST -->
+        <div class="featured-card" data-aos="zoom-in" data-cat="D2C Brands">
+            <div class="feat-img"></div>
+            <div class="feat-content">
+                <div class="badge-feat">Featured Post</div>
+                <div>
+                    <span class="cat">D2C BRANDS</span>
+                    <span class="read-t"><i class="far fa-clock"></i> 10 min read</span>
+                </div>
+                <h2 class="feat-title">How Indian D2C Brands Can 10X Their Instagram Sales in 2025</h2>
+                <p class="feat-excerpt">From optimizing your Reel hook to mastering Meta retargeting, discover the exact roadmap top Indian D2C brands use to scale to 8-figures profitably.</p>
+                <div class="author-box">
+                    <div class="avatar">AM</div>
+                    <div>
+                        <div style="font-weight: 700;">Arjun Mehta</div>
+                        <div style="font-size: 12px; opacity: 0.7;">Dec 15, 2024</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <div class="content-side">
+                <div class="blog-grid" id="blogGrid">
+                    <!-- Post 1 -->
+                    <div class="blog-card" data-cat="Meta Ads" data-aos="fade-up">
+                        <div class="card-img" style="background: linear-gradient(135deg, #1877F2, #00C6FF);"></div>
+                        <div class="card-content">
+                            <div class="card-meta"><span>Meta Ads</span> <span>8 min read</span></div>
+                            <h3 class="card-title">Complete Guide to Running Meta Ads in India: What Works in 2025</h3>
+                            <p class="card-desc">Master the complex Indian market with precision targeting, localized creatives, and the right budget allocation strategies for 2025.</p>
+                            <div class="author-box" style="margin-bottom: 20px;">
+                                <div class="avatar">AM</div>
+                                <div style="font-size: 13px;">Arjun Mehta • Dec 2024</div>
+                            </div>
+                            <div class="read-more">Read Article <i class="fas fa-arrow-right"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Post 2 -->
+                    <div class="blog-card" data-cat="Social Media" data-aos="fade-up">
+                        <div class="card-img" style="background: linear-gradient(135deg, #E1306C, #FCAF45);"></div>
+                        <div class="card-content">
+                            <div class="card-meta"><span>Social Media</span> <span>5 min read</span></div>
+                            <h3 class="card-title">Why Reels Are the Fastest Way to Grow Your Indian Business</h3>
+                            <p class="card-desc">Short-form video is king in India. Learn how to leverage the algorithm to get millions of views without spending a rupee on ads.</p>
+                            <div class="author-box" style="margin-bottom: 20px;">
+                                <div class="avatar">PS</div>
+                                <div style="font-size: 13px;">Priya Sharma • Nov 2024</div>
+                            </div>
+                            <div class="read-more">Read Article <i class="fas fa-arrow-right"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Post 3 -->
+                    <div class="blog-card" data-cat="WhatsApp" data-aos="fade-up">
+                        <div class="card-img" style="background: linear-gradient(135deg, #25D366, #128C7E);"></div>
+                        <div class="card-content">
+                            <div class="card-meta"><span>WhatsApp</span> <span>6 min read</span></div>
+                            <h3 class="card-title">WhatsApp Marketing for Indian SMEs: The Complete 2025 Playbook</h3>
+                            <p class="card-desc">Turn your WhatsApp into a sales machine. Automate inquiries, send broadcasts, and build customer loyalty with ease.</p>
+                            <div class="author-box" style="margin-bottom: 20px;">
+                                <div class="avatar">RN</div>
+                                <div style="font-size: 13px;">Rahul Nair • Nov 2024</div>
+                            </div>
+                            <div class="read-more">Read Article <i class="fas fa-arrow-right"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Post 4 -->
+                    <div class="blog-card" data-cat="LinkedIn" data-aos="fade-up">
+                        <div class="card-img" style="background: linear-gradient(135deg, #0077B5, #00A0DC);"></div>
+                        <div class="card-content">
+                            <div class="card-meta"><span>LinkedIn</span> <span>7 min read</span></div>
+                            <h3 class="card-title">LinkedIn Growth Strategy for Indian Startups and B2B Brands</h3>
+                            <p class="card-desc">How Bangalore and Delhi startups are generating 50+ qualified enterprise leads every month through organic LinkedIn content.</p>
+                            <div class="author-box" style="margin-bottom: 20px;">
+                                <div class="avatar">SR</div>
+                                <div style="font-size: 13px;">Sneha Reddy • Oct 2024</div>
+                            </div>
+                            <div class="read-more">Read Article <i class="fas fa-arrow-right"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Post 5 -->
+                    <div class="blog-card" data-cat="Content" data-aos="fade-up">
+                        <div class="card-img" style="background: linear-gradient(135deg, #FF9933, #FFFFFF, #138808);"></div>
+                        <div class="card-content">
+                            <div class="card-meta"><span>Content</span> <span>5 min read</span></div>
+                            <h3 class="card-title">Multilingual Social Media: How to Win Hindi, Tamil & Telugu Audiences</h3>
+                            <p class="card-desc">Vernacular content is the next big growth frontier. Discover why regional languages are outperforming English in Tier 2 cities.</p>
+                            <div class="author-box" style="margin-bottom: 20px;">
+                                <div class="avatar">KP</div>
+                                <div style="font-size: 13px;">Kiran Patel • Oct 2024</div>
+                            </div>
+                            <div class="read-more">Read Article <i class="fas fa-arrow-right"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Post 6 -->
+                    <div class="blog-card" data-cat="D2C Brands" data-aos="fade-up">
+                        <div class="card-img" style="background: linear-gradient(135deg, #7F00FF, #E100FF);"></div>
+                        <div class="card-content">
+                            <div class="card-meta"><span>D2C Brands</span> <span>9 min read</span></div>
+                            <h3 class="card-title">How Indian D2C Brands Scale from ₹10L to ₹1Cr Revenue</h3>
+                            <p class="card-desc">The secret funnel architecture used by top brands to boost retention and drive consistent month-on-month growth.</p>
+                            <div class="author-box" style="margin-bottom: 20px;">
+                                <div class="avatar">AG</div>
+                                <div style="font-size: 13px;">Amit Gupta • Sep 2024</div>
+                            </div>
+                            <div class="read-more">Read Article <i class="fas fa-arrow-right"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="load-more-btn" id="loadMoreBtn">Load More Articles</button>
+            </div>
+
+            <div class="sidebar">
+                <div class="widget">
+                    <h4>Browse by Topic</h4>
+                    <ul class="sidebar-list">
+                        <li data-cat="Social Media">Social Media <span>12</span></li>
+                        <li data-cat="Meta Ads">Meta Ads <span>8</span></li>
+                        <li data-cat="Content">Strategy <span>15</span></li>
+                        <li data-cat="WhatsApp">WhatsApp <span>5</span></li>
+                        <li data-cat="LinkedIn">B2B Marketing <span>9</span></li>
+                        <li data-cat="D2C Brands">D2C Growth <span>21</span></li>
+                    </ul>
+                </div>
+
+                <div class="widget">
+                    <h4>Popular Tags</h4>
+                    <div class="tag-cloud">
+                        <span class="tag">#Reels</span>
+                        <span class="tag">#PerformanceMarketing</span>
+                        <span class="tag">#IndianSME</span>
+                        <span class="tag">#D2C</span>
+                        <span class="tag">#BrandBuilding</span>
+                        <span class="tag">#ROI</span>
+                        <span class="tag">#MarketingAutomation</span>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <h4>Newsletter</h4>
+                    <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">Get weekly marketing tips delivered to your inbox.</p>
+                    <div class="news-form" style="flex-direction: column;">
+                        <input type="email" placeholder="Your Email">
+                        <button style="width: 100%;">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEWSLETTER BANNER -->
+    <section class="newsletter-banner" data-aos="fade-up">
+        <div class="container">
+            <h2>Get India&apos;s Best Marketing Tips Delivered Weekly</h2>
+            <p>Join 10,000+ Indian entrepreneurs and marketers growing with SocialSetu.</p>
+            <div class="news-form">
+                <input type="email" id="newsletterInput" placeholder="Enter your business email">
+                <button id="subscribeBtn">Join Now</button>
+            </div>
+            <div class="social-proof">
+                <div class="faces">
+                    <div class="face"></div>
+                    <div class="face"></div>
+                    <div class="face"></div>
+                    <div class="face"></div>
+                    <div class="face"></div>
+                </div>
+                <span style="font-size: 14px; font-weight: 600;">Trusted by 10k+ businesses</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="ft-grid">
+                <div>
+                    <a href="#" class="ft-logo">Social<span>Setu</span>🇮🇳</a>
+                    <p class="ft-desc">India's leading social media growth agency for D2C brands, Real Estate, and SMEs.</p>
+                </div>
+                <div class="ft-links">
+                    <h5>Company</h5>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="case-studies.html">Case Studies</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="ft-links">
+                    <h5>Services</h5>
+                    <ul>
+                        <li><a href="#">Social Media</a></li>
+                        <li><a href="#">Meta Ads</a></li>
+                        <li><a href="#">Reels Production</a></li>
+                        <li><a href="#">SMM Training</a></li>
+                    </ul>
+                </div>
+                <div class="ft-links">
+                    <h5>Contact</h5>
+                    <ul>
+                        <li><a href="#">hello@socialsetu.com</a></li>
+                        <li><a href="#">+91 99999 00000</a></li>
+                        <li><a href="#">Mumbai, India</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="ft-bottom">
+                <p>© 2025 SocialSetu Digital Agency. All rights reserved.</p>
+                <p>Proudly Made in India 🇮🇳</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+        // Navbar Scroll
+        window.onscroll = function() {
+            const nav = document.getElementById("navbar");
+            const progress = document.getElementById("progress-bar");
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            
+            progress.style.width = scrolled + "%";
+
+            if (winScroll > 50) {
+                nav.classList.add("scrolled");
+            } else {
+                nav.classList.remove("scrolled");
+            }
+        };
+
+        // Category Filtering
+        const pills = document.querySelectorAll('.pill, .sidebar-list li');
+        const cards = document.querySelectorAll('.blog-card, .featured-card');
+
+        pills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                const cat = pill.getAttribute('data-cat');
+                
+                pills.forEach(p => p.classList.remove('active'));
+                if (pill.classList.contains('pill')) pill.classList.add('active');
+
+                cards.forEach(card => {
+                    const cardCat = card.getAttribute('data-cat');
+                    if (cat === 'all' || cardCat === cat) {
+                        card.style.display = 'flex';
+                        setTimeout(() => card.style.opacity = '1', 50);
+                    } else {
+                        card.style.opacity = '0';
+                        setTimeout(() => card.style.display = 'none', 300);
+                    }
+                });
+            });
+        });
+
+        // Search Filter
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            cards.forEach(card => {
+                const title = card.querySelector('h2, h3').innerText.toLowerCase();
+                const desc = card.querySelector('p').innerText.toLowerCase();
+                if (title.includes(query) || desc.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Load More Simulation
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        loadMoreBtn.addEventListener('click', () => {
+            loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            setTimeout(() => {
+                const grid = document.getElementById('blogGrid');
+                for(let i=0; i<3; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'blog-card';
+                    div.setAttribute('data-aos', 'fade-up');
+                    div.innerHTML = `
+                        <div class="card-img" style="background: var(--primary-gradient)"></div>
+                        <div class="card-content">
+                            <div class="card-meta"><span>Extra Tip</span> <span>4 min read</span></div>
+                            <h3 class="card-title">Secret Strategy #${Math.floor(Math.random()*100)} for Local Growth</h3>
+                            <p class="card-desc">Discover the hidden patterns that allow small businesses to compete with corporate giants on social media...</p>
+                            <div class="read-more">Read Article <i class="fas fa-arrow-right"></i></div>
+                        </div>
+                    `;
+                    grid.appendChild(div);
+                }
+                loadMoreBtn.innerHTML = 'Load More Articles';
+                AOS.refresh();
+            }, 1500);
+        });
+
+        // Newsletter Toast
+        document.getElementById('subscribeBtn').addEventListener('click', () => {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        });
+    </script>
+</body>
+</html>

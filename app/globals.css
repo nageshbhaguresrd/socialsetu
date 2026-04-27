@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #FF6B35;
+  --color-secondary: #1A1A2E;
+  --color-accent: #16213E;
+  --color-highlight: #0F3460;
+  --color-gold: #FFD700;
+  --color-success: #00D084;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #B0B8C8;
+  
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-poppins);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-secondary);
+    color: var(--color-text-primary);
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 107, 53, 0.2);
+    border-radius: 20px;
+  }
+  
+  .glass-nav {
+    background: rgba(26, 26, 46, 0.8);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .gradient-btn {
+    background: linear-gradient(135deg, var(--color-primary), #FF8C42);
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .gradient-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
+  }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, var(--color-primary), #FF8C42);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+@layer utilities {
+  .animate-marquee {
+    display: flex;
+    animation: marquee 40s linear infinite;
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  
+  .mesh-bg {
+    background-color: var(--color-secondary);
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(255, 107, 53, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(22, 33, 62, 0.5) 0px, transparent 50%);
+  }
+}

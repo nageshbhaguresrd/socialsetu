@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Social Media Audit for Indian Businesses | SocialSetu</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Claim your free 30-minute social media audit worth ₹5,000. Discover how to grow your Indian business with Meta Ads and Viral Content.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --primary-gradient: linear-gradient(135deg, #FF6B35, #FF8C42);
+            --dark-bg: #0D0D1A;
+            --card-bg: #1A1A2E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B8C8;
+            --success: #00D084;
+            --urgency: #FF4444;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, .font-display {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            padding: 24px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo span { color: var(--primary); }
+
+        .header-trust {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .star-rating { color: #FFD700; }
+
+        /* --- HERO --- */
+        .hero {
+            padding: 80px 0;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+
+        .hero-content { padding-top: 20px; }
+
+        .urgency-badge {
+            background: rgba(255, 68, 68, 0.1);
+            color: var(--urgency);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 13px;
+            display: inline-block;
+            margin-bottom: 24px;
+            border-left: 4px solid var(--urgency);
+        }
+
+        .hero-content h1 {
+            font-size: 52px;
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+
+        .hero-content p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.4;
+        }
+
+        .bullet-list {
+            list-style: none;
+            margin-bottom: 60px;
+        }
+
+        .bullet-list li {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 18px;
+            font-size: 17px;
+            font-weight: 500;
+        }
+
+        .bullet-list i {
+            color: var(--success);
+            font-size: 20px;
+        }
+
+        .social-proof-strip {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0.8;
+        }
+
+        .client-icons { display: flex; align-items: center; }
+        .client-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #252545;
+            border: 2px solid var(--dark-bg);
+            margin-left: -12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 800;
+        }
+        .client-icon:first-child { margin-left: 0; }
+
+        /* --- FORM --- */
+        .form-container {
+            position: sticky;
+            top: 40px;
+            z-index: 100;
+        }
+
+        .lead-form-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            border: 3px solid var(--primary);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+            color: #333;
+        }
+
+        .form-header h2 {
+            font-size: 28px;
+            color: var(--dark-bg);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .form-header p {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #444;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1); }
+
+        .radio-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 10px 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .radio-option:hover { background: #f9f9f9; }
+
+        .submit-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 800;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3); }
+            50% { transform: scale(1.02); box-shadow: 0 15px 30px rgba(255, 107, 53, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3); }
+        }
+
+        .form-footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .form-footer p { margin-bottom: 8px; }
+
+        /* --- TRUST BAR --- */
+        .trust-bar {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 40px 0;
+            border-y: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .trust-bar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .trust-item {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .trust-item .val { font-size: 24px; font-weight: 800; color: white; }
+        .trust-item .lab { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+
+        /* --- RESULTS --- */
+        .results-section { padding: 120px 0; text-align: center; }
+        .section-h { font-size: 44px; margin-bottom: 60px; }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .res-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+
+        .res-card:hover { transform: translateY(-10px); border-color: var(--primary); }
+
+        .res-tag {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .res-num { font-size: 32px; font-weight: 800; margin-bottom: 15px; display: block; }
+        .res-story { font-size: 15px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+        .res-stars { color: #FFD700; font-size: 12px; }
+
+        /* --- VIDEO SOCIAL PROOF --- */
+        .video-section { padding: 100px 0; background: #060610; }
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .video-box {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .v-thumb {
+            height: 200px;
+            background: linear-gradient(45deg, #16213E, #252545);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .v-play {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .v-info { padding: 24px; }
+        .v-client { display: block; font-weight: 700; margin-bottom: 5px; }
+        .v-biz { font-size: 12px; color: var(--text-secondary); margin-bottom: 15px; display: block; }
+        .v-quote { font-size: 14px; font-style: italic; color: #ddd; }
+
+        /* --- HOW IT WORKS --- */
+        .how-section { padding: 120px 0; text-align: center; }
+        .how-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .how-step { text-align: center; position: relative; }
+        .step-num {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 24px;
+            margin: 0 auto 24px;
+        }
+
+        .how-step h4 { font-size: 20px; margin-bottom: 15px; }
+        .how-step p { font-size: 15px; color: var(--text-secondary); }
+
+        .risk-callout {
+            margin-top: 80px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        /* --- FAQ / OBJECTIONS --- */
+        .faq-section { padding: 100px 0; background: #060610; }
+        .faq-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .faq-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+        }
+
+        .faq-card h4 { color: var(--primary); font-size: 18px; margin-bottom: 15px; }
+        .faq-card p { font-size: 15px; color: var(--text-secondary); }
+
+        /* --- FINAL CTA --- */
+        .final-cta {
+            padding: 120px 0;
+            text-align: center;
+            background: linear-gradient(to bottom, #0D0D1A, #1A1A2E);
+        }
+
+        .timer-box {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .time-unit { text-align: center; }
+        .time-val { font-size: 42px; font-weight: 800; display: block; color: var(--primary); }
+        .time-lab { font-size: 10px; text-transform: uppercase; font-weight: 700; color: var(--text-secondary); }
+
+        .final-btn {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 20px 60px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 22px;
+            display: inline-block;
+            transition: var(--transition);
+        }
+
+        .final-btn:hover { transform: scale(1.05); box-shadow: 0 20px 40px rgba(255, 107, 53, 0.3); }
+
+        /* --- EXIT POPUP --- */
+        #exit-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .popup-card {
+            background: white;
+            color: #333;
+            width: 90%;
+            max-width: 500px;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .close-popup {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        /* --- FOOTER --- */
+        footer { padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; color: var(--text-secondary); font-size: 13px; }
+        .footer-links { margin: 15px 0; }
+        .footer-links a { color: var(--text-secondary); text-decoration: none; margin: 0 15px; }
+
+        /* --- SUCCESS STATE --- */
+        .success-state {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .success-state h3 { font-size: 28px; color: var(--success); margin-bottom: 20px; }
+        .success-state i { font-size: 64px; color: var(--success); margin-bottom: 24px; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1100px) {
+            .hero { grid-template-columns: 1fr; gap: 40px; }
+            .hero-content h1 { font-size: 42px; }
+            .results-grid, .video-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 { font-size: 36px; }
+            .hero-content p { font-size: 18px; }
+            .results-grid, .video-grid, .how-grid, .faq-grid { grid-template-columns: 1fr; }
+            .trust-bar .container { justify-content: center; }
+            .hero { padding: 40px 0; }
+            .form-container { position: relative; top: 0; }
+            .lead-form-card { padding: 30px 20px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- EXIT POPUP -->
+    <div id="exit-popup">
+        <div class="popup-card">
+            <span class="close-popup">&times;</span>
+            <h2 style="font-size: 28px; margin-bottom: 15px;">Wait! Don&apos;t Leave!</h2>
+            <p style="margin-bottom: 30px; color: #666;">We only have 2 free audit slots left for Mumbai and Delhi this week. Claim yours before it&apos;s gone.</p>
+            <div class="form-group">
+                <input type="tel" id="exit-phone" placeholder="Your WhatsApp Number">
+            </div>
+            <div class="form-group">
+                <select id="exit-city">
+                    <option value="">Select Your City</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Bangalore">Bangalore</option>
+                    <option value="Pune">Pune</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                </select>
+            </div>
+            <button class="submit-btn" id="exit-submit">Claim My Free Slot →</button>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">Social<span>Setu</span>🇮🇳</a>
+            <div class="header-trust">
+                <div class="star-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <span>4.9/5 from 500+ Businesses</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero container">
+        <div class="hero-content" data-aos="fade-right">
+            <div class="urgency-badge">🔥 Limited Slots — Only 5 Free Audits Available This Week</div>
+            <h1>Is Your Business Leaving Money on the Table?</h1>
+            <p>Get a FREE ₹5,000 Social Media Audit and discover exactly why your competitors are growing faster than you on Instagram, Facebook & Google.</p>
+            
+            <ul class="bullet-list">
+                <li><i class="fas fa-check-circle"></i> See exactly where your social media is losing money</li>
+                <li><i class="fas fa-check-circle"></i> Get a custom growth plan for YOUR industry</li>
+                <li><i class="fas fa-check-circle"></i> Discover the 3 ads your competitors are running</li>
+                <li><i class="fas fa-check-circle"></i> Find your fastest path to ₹1Cr+ in social revenue</li>
+                <li><i class="fas fa-check-circle"></i> 100% free — no obligation, no credit card</li>
+            </ul>
+
+            <div class="social-proof-strip">
+                <div class="client-icons">
+                    <div class="client-icon">RV</div>
+                    <div class="client-icon">AK</div>
+                    <div class="client-icon">SP</div>
+                    <div class="client-icon">RD</div>
+                    <div class="client-icon">+500</div>
+                </div>
+                <span style="font-size: 14px; font-weight: 600;">Trusted by 500+ brands across India</span>
+            </div>
+        </div>
+
+        <div class="form-container" data-aos="fade-left">
+            <div class="lead-form-card" id="form-card">
+                <div id="form-inner">
+                    <div class="form-header">
+                        <h2>Claim Your FREE Audit Now</h2>
+                        <p>Takes 30 seconds. We&apos;ll call you within 2 hours.</p>
+                    </div>
+
+                    <form id="leadForm">
+                        <div class="form-group">
+                            <label>Full Name*</label>
+                            <input type="text" id="name" placeholder="E.g. Rajesh Kumar" required>
+                        </div>
+                        <div class="form-group">
+                            <label>WhatsApp Number*</label>
+                            <input type="tel" id="whatsapp" placeholder="+91 98765 43210" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Your City*</label>
+                            <select id="city" required>
+                                <option value="">Select City</option>
+                                <option value="Mumbai">Mumbai</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Bangalore">Bangalore</option>
+                                <option value="Pune">Pune</option>
+                                <option value="Hyderabad">Hyderabad</option>
+                                <option value="Chennai">Chennai</option>
+                                <option value="Kolkata">Kolkata</option>
+                                <option value="Ahmedabad">Ahmedabad</option>
+                                <option value="Jaipur">Jaipur</option>
+                                <option value="Other">Other Major City</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Business Type*</label>
+                            <select id="businessType" required>
+                                <option value="">Select Category</option>
+                                <option value="Real Estate">Real Estate</option>
+                                <option value="Restaurant">Restaurant/Food</option>
+                                <option value="D2C">D2C/eCommerce</option>
+                                <option value="Healthcare">Healthcare/Clinic</option>
+                                <option value="Education">Education/Coaching</option>
+                                <option value="Fashion">Fashion/Lifestyle</option>
+                                <option value="IT">IT/SaaS/Startup</option>
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Other">Other Service</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Monthly Marketing Budget*</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="budget" value="<10k" required>
+                                    <span>Less than ₹10,000</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="budget" value="10k-30k">
+                                    <span>₹10,000 – ₹30,000</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="budget" value="30k-75k">
+                                    <span>₹30,000 – ₹75,000</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="budget" value="75k+">
+                                    <span>₹75,000+</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="submitBtn">Yes! Give Me My FREE Audit →</button>
+                        
+                        <div class="form-footer">
+                            <p><i class="fas fa-lock"></i> 100% Private. We never share your data.</p>
+                            <p>📞 Or call us directly: <b>+91 99999 00000</b></p>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Thank you state -->
+                <div class="success-state" id="successMessages">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Brilliant! We&apos;ll Call You.</h3>
+                    <p>We&apos;ve received your request. One of our growth strategists will call you within 2 hours to schedule your audit.</p>
+                    <div style="margin-top: 30px; text-align: left; background: #f8f8f8; padding: 20px; border-radius: 12px; font-size: 14px;">
+                        <p style="font-weight: 700; margin-bottom: 10px;">What to expect on the call:</p>
+                        <ul style="list-style: disc; margin-left: 20px;">
+                            <li>Live analysis of your Instagram & Facebook presence</li>
+                            <li>Competitor ad research (we'll show you what they spend)</li>
+                            <li>Actionable fixes you can apply today</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRUST BAR -->
+    <section class="trust-bar">
+        <div class="container">
+            <div class="trust-item">
+                <span class="val" data-target="500">0+</span>
+                <span class="lab">Brands Grown</span>
+            </div>
+            <div class="trust-item">
+                <span class="val" data-target="20">0+</span>
+                <span class="lab">Cities Across India</span>
+            </div>
+            <div class="trust-item">
+                <span class="val">4.9/5</span>
+                <span class="lab">Star Rating</span>
+            </div>
+            <div class="trust-item">
+                <span class="val" data-target="50">0Cr+</span>
+                <span class="lab">Ad Spend Managed</span>
+            </div>
+            <div class="trust-item">
+                <span class="val">No Lock-in</span>
+                <span class="lab">Contracts</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- RESULTS STRIP -->
+    <section class="results-section container">
+        <h2 class="section-h" data-aos="fade-up">Here&apos;s What Happens After Your FREE Audit...</h2>
+        <div class="results-grid">
+            <div class="res-card" data-aos="fade-up">
+                <span class="res-tag">Delhi Real Estate</span>
+                <span class="res-num">₹3.6Cr</span>
+                <p class="res-story">"Got 600 leads in 60 days → 12 apartment bookings → Massive ROI on social."</p>
+                <div class="res-stars">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+            </div>
+            <div class="res-card" data-aos="fade-up" data-aos-delay="100">
+                <span class="res-tag">Mumbai D2C Brand</span>
+                <span class="res-num">1.2L+</span>
+                <p class="res-story">"0 to 1 lakh Instagram followers in 6 months → 5.2X ROAS → ₹42L revenue."</p>
+                <div class="res-stars">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+            </div>
+            <div class="res-card" data-aos="fade-up" data-aos-delay="200">
+                <span class="res-tag">Hyderabad Restaurant</span>
+                <span class="res-num">40%</span>
+                <p class="res-story">"3 viral reels → 1M+ views each → 40% more weekend reservations."</p>
+                <div class="res-stars">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VIDEO TESTIMONIALS -->
+    <section class="video-section">
+        <div class="container">
+            <h2 class="section-h" style="text-align: center; margin-bottom: 60px;">Real Business Owners. Real Results.</h2>
+            <div class="video-grid">
+                <div class="video-box" data-aos="zoom-in">
+                    <div class="v-thumb">
+                        <div class="v-play"><i class="fas fa-play"></i></div>
+                    </div>
+                    <div class="v-info">
+                        <span class="v-client">Rahul Verma</span>
+                        <span class="v-biz">SkyVista Homes • Delhi</span>
+                        <p class="v-quote">"SocialSetu changed how we look at social media. It&apos;s a revenue machine now."</p>
+                    </div>
+                </div>
+                <div class="video-box" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="v-thumb">
+                        <div class="v-play"><i class="fas fa-play"></i></div>
+                    </div>
+                    <div class="v-info">
+                        <span class="v-client">Anita Krishnan</span>
+                        <span class="v-biz">BrightPath Academy • Jaipur</span>
+                        <p class="v-quote">"As an educator, I was wary of agencies. But their ethical, results-led approach works."</p>
+                    </div>
+                </div>
+                <div class="video-box" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="v-thumb">
+                        <div class="v-play"><i class="fas fa-play"></i></div>
+                    </div>
+                    <div class="v-info">
+                        <span class="v-client">Sameer Patel</span>
+                        <span class="v-biz">PureRoots Organics • Ahmedabad</span>
+                        <p class="v-quote">"Repeat sales increased by 70% after we set up their recommended funnel."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-section container">
+        <h2 class="section-h" data-aos="fade-up">What Happens After You Submit?</h2>
+        <div class="how-grid">
+            <div class="how-step" data-aos="fade-up">
+                <div class="step-num">1</div>
+                <h4>We call you within 2 hours</h4>
+                <p>We'll reach out to learn about your business goals and current struggles. (Mon-Sat, 9AM-7PM IST)</p>
+            </div>
+            <div class="how-step" data-aos="fade-up" data-aos-delay="100">
+                <div class="step-num">2</div>
+                <h4>30-min FREE strategy call</h4>
+                <p>A senior strategist audits your social media live. We show you the gaps and competitor secrets.</p>
+            </div>
+            <div class="how-step" data-aos="fade-up" data-aos-delay="200">
+                <div class="step-num">3</div>
+                <h4>You get a custom plan</h4>
+                <p>A 90-day roadmap tailored for your city and industry. No strings attached, yours to keep.</p>
+            </div>
+        </div>
+        <div class="risk-callout" data-aos="zoom-in">
+            <i class="fas fa-shield-alt text-success"></i> No sales pressure. No obligation. Just pure value — or we&apos;ve wasted your time.
+        </div>
+    </section>
+
+    <!-- OBJECTION CRUSHER -->
+    <section class="faq-section">
+        <div class="container">
+            <h2 class="section-h" style="text-align: center; margin-bottom: 60px;">We Know What You&apos;re Thinking...</h2>
+            <div class="faq-grid">
+                <div class="faq-card" data-aos="fade-up">
+                    <h4>Is this really free?</h4>
+                    <p>100% free. No credit card required. We do this because 90% of our audit clients find so much value that they eventually become long-term partners. It's how we grow.</p>
+                </div>
+                <div class="faq-card" data-aos="fade-up" data-aos-delay="100">
+                    <h4>I&apos;ve tried agencies before and got burned</h4>
+                    <p>We hear this every day. That's why we don't believe in long contracts. We offer month-to-month contracts only. If we don't deliver, you leave. Simple as that.</p>
+                </div>
+                <div class="faq-card" data-aos="fade-up">
+                    <h4>My business is too small</h4>
+                    <p>Our smallest client started at ₹8,000/month. We've scaled businesses in Tier-2 cities with tiny budgets to ₹10Cr+ revenue using organic Reels and smart ads.</p>
+                </div>
+                <div class="faq-card" data-aos="fade-up" data-aos-delay="100">
+                    <h4>I don&apos;t have time for this</h4>
+                    <p>The audit is just 30 minutes. You don't need to prepare anything. We do 100% of the research and present the findings to you in a simple, easy-to-understand format.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="final-cta">
+        <div class="container">
+            <h2 data-aos="fade-up">Still Thinking? Your Competitors Aren&apos;t.</h2>
+            <p data-aos="fade-up" data-aos-delay="100">We only take 5 new audit clients per week to ensure every plan is high-quality.</p>
+            
+            <div class="timer-box" data-aos="zoom-in">
+                <div class="time-unit">
+                    <span class="time-val" id="hours">47</span>
+                    <span class="time-lab">Hours</span>
+                </div>
+                <div class="time-unit">
+                    <span class="time-val" id="minutes">59</span>
+                    <span class="time-lab">Minutes</span>
+                </div>
+                <div class="time-unit">
+                    <span class="time-val" id="seconds">32</span>
+                    <span class="time-lab">Seconds</span>
+                </div>
+            </div>
+
+            <a href="#leadForm" class="final-btn" id="scrollToTop">Claim My FREE Audit Slot →</a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <p>© 2025 SocialSetu Digital Agency. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+            <p>GSTIN: 27XXXXX0000X1Z • BrandBhaarat Group | Pan-India 🇮🇳</p>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Init AOS
+        AOS.init({ duration: 800, once: true });
+
+        // Countdown Timer (48-hour cycle)
+        function updateTimer() {
+            const now = new Date().getTime();
+            let timerEnd = localStorage.getItem('auditTimerEnd');
+            
+            if (!timerEnd || now > timerEnd) {
+                timerEnd = now + (48 * 60 * 60 * 1000);
+                localStorage.setItem('auditTimerEnd', timerEnd);
+            }
+            
+            const distance = timerEnd - now;
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
+            document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
+            document.getElementById("seconds").innerText = seconds.toString().padStart(2, '0');
+        }
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // Counter Animation
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const val = Math.floor(progress * (end - start) + start);
+                obj.innerHTML = val + (obj.innerHTML.includes('Cr') ? 'Cr+' : '+');
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        const stats = document.querySelectorAll('.val[data-target]');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = parseInt(entry.target.getAttribute('data-target'));
+                    animateValue(entry.target, 0, target, 2000);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        stats.forEach(s => observer.observe(s));
+
+        // UTM Capture
+        const urlParams = new URLSearchParams(window.location.search);
+        const utmSource = urlParams.get('utm_source') || 'direct';
+        const utmMedium = urlParams.get('utm_medium') || 'none';
+        const utmCampaign = urlParams.get('utm_campaign') || 'none';
+        console.log(`UTM Captured: ${utmSource} / ${utmMedium} / ${utmCampaign}`);
+
+        // Form Submit
+        document.getElementById('leadForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
+            // Log form data for tracking
+            const formData = {
+                name: document.getElementById('name').value,
+                whatsapp: document.getElementById('whatsapp').value,
+                city: document.getElementById('city').value,
+                budget: document.querySelector('input[name="budget"]:checked').value,
+                utmSource,
+                utmMedium,
+                utmCampaign
+            };
+            console.log("Form Submitted:", formData);
+
+            setTimeout(() => {
+                document.getElementById('form-inner').style.display = 'none';
+                document.getElementById('successMessages').style.display = 'block';
+                window.scrollTo({ top: document.getElementById('form-card').offsetTop - 50, behavior: 'smooth' });
+            }, 1500);
+        });
+
+        // Exit Intent Popup
+        let popupShown = false;
+        document.addEventListener("mouseleave", function(e) {
+            if (e.clientY < 0 && !popupShown) {
+                document.getElementById("exit-popup").style.display = "flex";
+                popupShown = true;
+            }
+        });
+
+        document.querySelector(".close-popup").addEventListener("click", () => {
+            document.getElementById("exit-popup").style.display = "none";
+        });
+
+        // Scroll Tracking
+        let milestones = { 25: false, 50: false, 75: false, 100: false };
+        window.addEventListener("scroll", () => {
+            let scrollTop = window.scrollY;
+            let docHeight = document.body.offsetHeight;
+            let winHeight = window.innerHeight;
+            let scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+
+            [25, 50, 75, 100].forEach(m => {
+                if (scrollPercent > m && !milestones[m]) {
+                    console.log(`User reached ${m}% of the page`);
+                    milestones[m] = true;
+                }
+            });
+        });
+
+        // Smooth scroll for footer button
+        document.getElementById('scrollToTop').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: document.getElementById('leadForm').offsetTop - 150, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
