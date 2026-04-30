@@ -807,7 +807,7 @@ export default function SocialSetuPage() {
             {formSuccess ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-8">
                 <Rocket size={64} className="text-primary mb-6" />
-                <h3 className="text-3xl font-bold mb-4">We'll call you within 2 hours! 🙏</h3>
+              <h3 className="text-3xl font-bold mb-4">We&apos;ll call you within 2 hours! 🙏</h3>
               </div>
             ) : (
             <form className="space-y-8" onSubmit={handleContactSubmit}>
@@ -921,7 +921,7 @@ export default function SocialSetuPage() {
               <span className="hidden md:inline">|</span>
               <span>Proudly Made in India 🇮🇳</span>
               <span className="hidden md:inline">|</span>
-              <span>// TODO: Replace with real GST number</span>
+              <span>{/* TODO: Replace with real GST number */}</span>
             </div>
             <div className="flex gap-8 text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em]">
               <a href="#" className="hover:text-white">Privacy Policy</a>

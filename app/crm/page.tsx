@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { createClient } from '@/lib/supabase/client';
 import { leadSchema } from '@/lib/validation/schemas';
@@ -117,8 +117,8 @@ const STAGE_COLORS: Record<string, string> = {
 };
 
 const initialReminders: Reminder[] = [
-  { id: 1, leadId: 2, type: "closing", note: "Final call for closing", dueDate: "2024-12-28", dueTime: "11:00", done: false, createdAt: "2024-12-21" },
-  { id: 2, leadId: 3, type: "followup", note: "Follow up on proposal", dueDate: "2024-12-27", dueTime: "14:00", done: false, createdAt: "2024-12-21" },
+  { id: 1, leadId: "lead_001", type: "closing", note: "Final call for closing", dueDate: "2024-12-28", dueTime: "11:00", done: false, createdAt: "2024-12-21" },
+  { id: 2, leadId: "lead_002", type: "followup", note: "Follow up on proposal", dueDate: "2024-12-27", dueTime: "14:00", done: false, createdAt: "2024-12-21" },
 ];
 
 /* ─── UTILITIES ─────────────────────────────────────────── */
@@ -326,8 +326,7 @@ export default function BrandBhaaratCRM() {
     setTimeout(() => setStageSaved(false), 2000);
   };
 
-  const fetchLeads = async () => {
-    setLoading(true);
+  const fetchLeads = useCallback(async () => {
     const supabase = createClient();
     const { data, error } = await supabase
       .from('leads')
@@ -357,9 +356,9 @@ export default function BrandBhaaratCRM() {
       })));
     }
     setLoading(false);
-  };
+  }, []);
 
-  const fetchReminders = async () => {
+  const fetchReminders = useCallback(async () => {
     const supabase = createClient();
     const { data, error } = await supabase
       .from('reminders')
@@ -380,15 +379,18 @@ export default function BrandBhaaratCRM() {
         createdAt: r.created_at
       })));
     }
-  };
-
-  useEffect(() => {
-    fetchLeads();
   }, []);
 
   useEffect(() => {
-    fetchReminders();
-  }, []);
+    const init = async () => {
+      // Since loading starts as true, we just wait for both to finish
+      await Promise.all([
+        fetchLeads(),
+        fetchReminders()
+      ]);
+    };
+    init();
+  }, [fetchLeads, fetchReminders]);
 
   const filteredLeads = leads.filter(l => 
     l.name.toLowerCase().includes(search.toLowerCase()) || 
