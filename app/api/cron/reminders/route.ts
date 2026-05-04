@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { createClient } from '@/lib/supabase/server';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
 const getTodayInIST = () => {
   const parts = new Intl.DateTimeFormat('en-CA', {
@@ -93,7 +93,9 @@ export async function GET(request: NextRequest) {
   </p>
 </div>`;
 
+    const resend = new Resend(process.env.RESEND_API_KEY!);
     await resend.emails.send({
+
       from: 'SocialSetu CRM <crm@socialsetu.com>',
       to: process.env.AGENCY_EMAIL!,
       subject: `📋 Today's Reminders — SocialSetu CRM (${reminders.length} due)`,

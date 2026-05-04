@@ -1,7 +1,5 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function sendLeadNotification({
   name,
   city,
@@ -19,6 +17,8 @@ export async function sendLeadNotification({
   email?: string;
   source?: string;
 }) {
+  const resend = new Resend(process.env.RESEND_API_KEY!);
+
   try {
     await resend.emails.send({
       from: 'SocialSetu CRM <crm@socialsetu.com>',
@@ -65,3 +65,4 @@ export async function sendLeadNotification({
     console.error('Failed to send lead email:', error);
   }
 }
+
