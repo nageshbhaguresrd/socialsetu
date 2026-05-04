@@ -1,0 +1,1 @@
+(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[21],{1264:(e,r,n)=>{Promise.resolve().then(n.bind(n,5561))},5561:(e,r,n)=>{"use strict";n.r(r),n(5155),n(2115);let a={primary:"#FF6B35",danger:"#EF4444",warning:"#F59E0B"};a.danger,a.warning,a.primary}},e=>{e.O(0,[441,255,358],()=>e(e.s=1264)),_N_E=e.O()}]);

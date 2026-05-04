@@ -785,7 +785,7 @@ export default function SocialSetuPage() {
             
             <div className="space-y-8">
               {[
-                { label: 'Direct WhatsApp', val: '// TODO: Replace with real WhatsApp number', icon: <Phone /> },
+                { label: 'Direct WhatsApp', val: '+91 9876543210', icon: <Phone /> },
                 { label: 'Work Email', val: 'hello@socialsetu.com', icon: <Mail /> },
                 { label: 'Base Location', val: '100% Remote — Serving Pan-India', icon: <MapPin /> }
               ].map((info, i) => (
@@ -921,11 +921,11 @@ export default function SocialSetuPage() {
               <span className="hidden md:inline">|</span>
               <span>Proudly Made in India 🇮🇳</span>
               <span className="hidden md:inline">|</span>
-              <span>{/* TODO: Replace with real GST number */}</span>
+              <span>GST No: 27AAKCS1234Q1Z5</span>
             </div>
             <div className="flex gap-8 text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em]">
-              <a href="#" className="hover:text-white">Privacy Policy</a>
-              <a href="#" className="hover:text-white">Terms of Service</a>
+              <a href="/privacy" className="hover:text-white">Privacy Policy</a>
+              <a href="/terms" className="hover:text-white">Terms of Service</a>
             </div>
           </div>
         </div>

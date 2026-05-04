@@ -4,7 +4,7 @@ import { z } from "zod";
 
 const schema = z.object({
   prompt: z.string().min(1, "Prompt is required").max(2000, "Prompt too long"),
-  systemInstruction: z.string().optional(),
+  systemInstruction: z.string().max(500, "System instruction too long").optional(),
 });
 
 export async function POST(req: Request) {
