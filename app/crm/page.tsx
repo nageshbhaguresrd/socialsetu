@@ -215,21 +215,21 @@ const ScoreRing = ({ score }: { score: number }) => {
 /* ─── CAMPAIGNS VIEW ─────────────────────────────────────── */
 
 const CampaignsView = ({ 
-  campaigns, 
-  loading, 
-  onRefresh, 
-  editingCampaign, 
-  setEditingCampaign, 
-  showModal, 
-  setShowModal 
+  campaigns = [], 
+  loading = false, 
+  onRefresh = () => {}, 
+  editingCampaign = null, 
+  setEditingCampaign = () => {}, 
+  showModal = false, 
+  setShowModal = () => {} 
 }: {
-  campaigns: Campaign[];
-  loading: boolean;
-  onRefresh: () => void;
-  editingCampaign: Campaign | null;
-  setEditingCampaign: (c: Campaign | null) => void;
-  showModal: boolean;
-  setShowModal: (b: boolean) => void;
+  campaigns?: Campaign[];
+  loading?: boolean;
+  onRefresh?: () => void;
+  editingCampaign?: Campaign | null;
+  setEditingCampaign?: (c: Campaign | null) => void;
+  showModal?: boolean;
+  setShowModal?: (b: boolean) => void;
 }) => {
   const stats = useMemo(() => {
     const totalBudget = campaigns.reduce((sum, c) => sum + c.budget, 0);
@@ -503,7 +503,10 @@ const CampaignsView = ({
                 >
                   Cancel
                 </button>
-                <Btn className="flex-1 py-4">Save Campaign</Btn>
+                <Btn 
+                  className="flex-1 py-4" 
+                  onClick={() => handleSaveCampaign({})}
+                >Save Campaign</Btn>
               </div>
             </div>
           </div>
@@ -538,6 +541,8 @@ const CampaignsView = ({
     </>
   );
 }
+
+export default CampaignsView;
 
 
 /* ─── HELPER COMPONENTS ─── */

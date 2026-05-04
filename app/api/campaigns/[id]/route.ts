@@ -2,12 +2,13 @@ import { createServerClient } from '@supabase/ssr'
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
-const cookieStore = cookies()
+// const cookieStore = cookies()
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -38,7 +39,7 @@ export async function PATCH(
   const { data, error } = await supabase
     .from('campaigns')
     .update(updateData)
-    .eq('id', params.id)
+    .eq('id', resolvedParams.id)
     .select()
     .single()
 
@@ -51,8 +52,9 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -69,7 +71,7 @@ export async function DELETE(
   const { error } = await supabase
     .from('campaigns')
     .delete()
-    .eq('id', params.id)
+    .eq('id', resolvedParams.id)
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
