@@ -11,8 +11,11 @@ export async function GET() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
+        getAll() { return cookieStore.getAll() },
+        setAll(c: any[]) {
+          c.forEach(({ name, value, options }: any) =>
+            cookieStore.set(name, value, options)
+          )
         },
       },
     }
@@ -35,8 +38,11 @@ export async function POST(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
+        getAll() { return cookieStore.getAll() },
+        setAll(c: any[]) {
+          c.forEach(({ name, value, options }: any) =>
+            cookieStore.set(name, value, options)
+          )
         },
       },
     }

@@ -1,59 +1,48 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useActionState } from 'react'
+import { loginAction } from './actions'
+
+const initialState = { error: '' }
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const router = useRouter();
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    
-    if (error) {
-      setError(error.message);
-    } else {
-      router.push('/crm');
-      router.refresh();
-    }
-  };
+  const [state, formAction, pending] = useActionState(loginAction, initialState)
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#080812] text-text font-inter p-6">
+    <div className="min-h-screen flex items-center justify-center bg-[#080812] p-6">
       <div className="w-full max-w-md bg-[#0F0F1A] border border-[#1E1E35] p-8 rounded-3xl shadow-xl">
-        <h1 className="text-2xl font-bold text-white mb-6 font-poppins">SocialSetu Login</h1>
-        <form onSubmit={handleLogin} className="space-y-4">
+        <h1 className="text-2xl font-bold text-white mb-2">SocialSetu</h1>
+        <p className="text-sm text-[#666] mb-8">Sign in to your CRM dashboard</p>
+        <form action={formAction} className="space-y-4">
           <input
             type="email"
+            name="email"
             placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-[#1A1A2E] border border-[#1E1E35] rounded-xl p-3 outline-none focus:border-primary/50 text-white"
             required
+            className="w-full bg-[#1A1A2E] border border-[#1E1E35] rounded-xl p-3 outline-none focus:border-[#6C63FF]/50 text-white"
           />
           <input
             type="password"
+            name="password"
             placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-[#1A1A2E] border border-[#1E1E35] rounded-xl p-3 outline-none focus:border-primary/50 text-white"
             required
+            className="w-full bg-[#1A1A2E] border border-[#1E1E35] rounded-xl p-3 outline-none focus:border-[#6C63FF]/50 text-white"
           />
-          {error && <p className="text-danger text-sm">{error}</p>}
-          <div className="text-right">
-            <span className="text-sm text-text hover:text-primary cursor-pointer">Forgot password?</span>
-          </div>
-          <button type="submit" className="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary/90 transition-all">
-            Sign In
+          {state?.error && (
+            <div className="bg-[#2D1515] border border-[#5C2020] rounded-lg p-3">
+              <p className="text-[#f87171] text-sm">{state.error}</p>
+            </div>
+          )}
+          <button
+            type="submit"
+            disabled={pending}
+            className="w-full py-3 rounded-xl font-bold text-white transition-all"
+            style={{ background: pending ? '#2A2A45' : '#6C63FF' }}
+          >
+            {pending ? 'Signing in...' : 'Sign In →'}
           </button>
         </form>
       </div>
     </div>
-  );
+  )
 }

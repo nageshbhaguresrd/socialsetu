@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet, Font, pdf } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
 
 interface InvoiceItem {
   description: string;
@@ -18,20 +18,11 @@ interface InvoiceData {
   agencyEmail: 'hello@socialsetu.com';
 }
 
-Font.register({
-  family: 'Inter',
-  fonts: [
-    { src: '/fonts/Inter-Regular.ttf', fontWeight: 400 },
-    { src: '/fonts/Inter-Bold.ttf', fontWeight: 700 },
-  ],
-});
-
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#FFFFFF',
     padding: 40,
-    fontFamily: 'Inter',
     fontSize: 10,
   },
   header: {
