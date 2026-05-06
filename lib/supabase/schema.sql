@@ -98,3 +98,21 @@ CREATE TABLE IF NOT EXISTS campaigns (
 );
 CREATE INDEX IF NOT EXISTS campaigns_status_idx ON campaigns(status);
 CREATE INDEX IF NOT EXISTS campaigns_platform_idx ON campaigns(platform);
+
+
+CREATE TABLE IF NOT EXISTS audits (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  lead_id uuid REFERENCES leads(id) ON DELETE SET NULL,
+  client_name text NOT NULL,
+  platforms jsonb NOT NULL DEFAULT '{}',
+  scores jsonb NOT NULL DEFAULT '{}',
+  report jsonb NOT NULL DEFAULT '{}',
+  status text NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending','processing','completed','failed')),
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS audits_lead_id_idx ON audits(lead_id);
+CREATE INDEX IF NOT EXISTS audits_status_idx ON audits(status);
+CREATE INDEX IF NOT EXISTS audits_created_at_idx ON audits(created_at DESC);

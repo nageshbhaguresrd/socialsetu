@@ -35,7 +35,8 @@ import {
   Check,
   ChevronLeft,
   X,
-  Activity
+  Activity,
+  BarChart2
 } from "lucide-react";
 import {
   AreaChart,
@@ -554,6 +555,92 @@ const CampaignsView = ({
   );
 }
 
+/* ─── AUDITS LIST VIEW ─── */
+
+const AuditsListView = () => {
+  const [audits, setAudits] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/audit')
+      .then(r => r.json())
+      .then(data => { setAudits(data || []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const scoreColor = (s: number) =>
+    s >= 70 ? COLORS.secondary : s >= 50 ? COLORS.warning : COLORS.danger
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold font-poppins">Social Media Audits</h2>
+          <p className="text-sm text-text mt-1">AI-powered audits for your clients</p>
+        </div>
+        <Btn onClick={() => window.location.href = '/audit/new'}>
+          + New Audit
+        </Btn>
+      </div>
+
+      {loading ? (
+        <div className="text-center text-text py-20">Loading audits...</div>
+      ) : audits.length === 0 ? (
+        <div className="text-center py-20 bg-[#0F0F1A] rounded-2xl border border-[#1E1E35]">
+          <p className="text-text mb-4">No audits yet</p>
+          <Btn onClick={() => window.location.href = '/audit/new'}>
+            Run your first audit
+          </Btn>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {audits.map((a: any) => (
+            <div
+              key={a.id}
+              onClick={() => window.location.href = `/audit/${a.id}`}
+              className="bg-[#0F0F1A] border border-[#1E1E35] rounded-2xl p-6 hover:border-primary/40 cursor-pointer transition-all"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="font-bold font-poppins">{a.client_name}</h3>
+                  <p className="text-xs text-text mt-1">
+                    {new Date(a.created_at).toLocaleDateString('en-IN')}
+                  </p>
+                </div>
+                {a.status === 'completed' && a.scores?.overall ? (
+                  <div className="text-center">
+                    <div className="text-2xl font-bold font-mono" style={{ color: scoreColor(a.scores.overall) }}>
+                      {a.scores.overall}
+                    </div>
+                    <div className="text-[10px] text-text">Score</div>
+                  </div>
+                ) : (
+                  <span className="text-xs px-2 py-1 rounded-full" style={{
+                    background: a.status === 'processing' ? '#1A1A0A' : a.status === 'failed' ? '#2A0F0F' : '#0F1A0F',
+                    color: a.status === 'processing' ? '#F59E0B' : a.status === 'failed' ? '#F87171' : '#4ADE80',
+                  }}>
+                    {a.status}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {Object.entries(a.platforms || {})
+                  .filter(([, v]) => v)
+                  .map(([k]) => (
+                    <span key={k} className="text-[10px] px-2 py-0.5 rounded-full bg-[#1A1A2E] text-text capitalize">
+                      {k}
+                    </span>
+                  ))
+                }
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ─── BRAND BHAARAT CRM SHELL ─── */
 
 function BrandBhaaratCRM() {
@@ -561,7 +648,7 @@ function BrandBhaaratCRM() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
-  const [activeView, setActiveView] = useState<'dashboard'|'leads'|'pipeline'|'reminders'|'campaigns'|'whatsapp'|'ai'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard'|'leads'|'pipeline'|'reminders'|'campaigns'|'whatsapp'|'ai'|'audits'>('dashboard');
   const [search, setSearch] = useState('');
   const [filterStage, setFilterStage] = useState('All');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -621,7 +708,7 @@ function BrandBhaaratCRM() {
     } catch { showToast('Failed to load campaigns.', 'error'); }
   }, [showToast]);
 
-  fetchCampaigns();
+  useEffect(() => { fetchCampaigns() }, [fetchCampaigns])
 
   const filteredLeads = useMemo(() => {
     let result = [...leads];
@@ -755,6 +842,7 @@ function BrandBhaaratCRM() {
               { key: 'campaigns', label: 'Campaigns', icon: Activity },
               { key: 'whatsapp', label: 'WhatsApp', icon: MessageSquare },
               { key: 'ai', label: 'AI Studio', icon: Bot },
+              { key: 'audits', label: 'Audits', icon: BarChart2 },
             ].map(({ key, label, icon: Icon }) => (
               <button
                 key={key}
@@ -852,7 +940,8 @@ function BrandBhaaratCRM() {
                           <td className="py-3"><ScoreRing score={l.aiScore} /></td>
                           <td className="py-3 text-center">
                             <button onClick={() => { setEditingLead(l); setShowLeadModal(true); }} className="text-[#666] hover:text-white mr-2">Edit</button>
-                            <button onClick={() => handleDeleteLead(l.id)} className="text-[#EF4444] hover:text-white">Del</button>
+                            <button onClick={() => handleDeleteLead(l.id)} className="text-[#EF4444] hover:text-white mr-2">Del</button>
+                            <button onClick={() => { window.location.href = `/audit/new?leadId=${l.id}&name=${encodeURIComponent(l.name)}&industry=${encodeURIComponent(l.industry)}`; }} className="text-[#8B5CF6] hover:text-white">Audit</button>
                           </td>
                         </tr>
                       ))}
@@ -918,6 +1007,8 @@ function BrandBhaaratCRM() {
             {activeView === 'campaigns' && (
               <CampaignsView campaigns={campaigns} loading={false} onRefresh={fetchCampaigns} editingCampaign={editingCampaign} setEditingCampaign={setEditingCampaign} showModal={showCampaignModal} setShowModal={setShowCampaignModal} />
             )}
+
+            {activeView === 'audits' && <AuditsListView />}
 
             {activeView === 'whatsapp' && <div className="text-[#666] py-20 text-center">WhatsApp integration coming soon...</div>}
             {activeView === 'ai' && <div className="text-[#666] py-20 text-center">AI Studio coming soon...</div>}
