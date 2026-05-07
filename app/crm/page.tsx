@@ -708,7 +708,16 @@ function BrandBhaaratCRM() {
     } catch { showToast('Failed to load campaigns.', 'error'); }
   }, [showToast]);
 
-  useEffect(() => { fetchCampaigns() }, [fetchCampaigns])
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/campaigns');
+        const data = await res.json();
+        setCampaigns(data || []);
+      } catch { showToast('Failed to load campaigns.', 'error'); }
+    };
+    load();
+  }, [showToast])
 
   const filteredLeads = useMemo(() => {
     let result = [...leads];
