@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
 import { 
@@ -134,6 +134,11 @@ export default function SocialSetuPage() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [activeInd, setActiveInd] = useState(0);
   const [isAnnounceVisible, setIsAnnounceVisible] = useState(true);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -187,6 +192,10 @@ export default function SocialSetuPage() {
     }
   };
 
+  // Prevent hydration mismatch for dynamic layout elements
+  if (!mounted) {
+    return <div className="min-h-screen bg-[#080812]" />;
+  }
 
   return (
     <div className="font-sans min-h-screen mesh-bg selection:bg-primary selection:text-white">

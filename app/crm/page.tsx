@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { createClient } from '@/lib/supabase/client';
 import { leadSchema } from '@/lib/validation/schemas';
@@ -659,6 +659,11 @@ function BrandBhaaratCRM() {
   const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const { toast, showToast, hideToast } = useToast();
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -832,6 +837,11 @@ function BrandBhaaratCRM() {
   const leadModal = editingLead
     ? { name: editingLead.name, business: editingLead.business, city: editingLead.city, industry: editingLead.industry, budget: editingLead.budget, phone: editingLead.phone, email: editingLead.email, value: editingLead.value, priority: editingLead.priority, notes: editingLead.notes, stage: editingLead.stage, source: editingLead.source, ai_score: editingLead.aiScore, last_contact: editingLead.lastContact }
     : null;
+
+  // Recharts and dynamic stats are prone to hydration mismatches
+  if (!mounted) {
+    return <div className="min-h-screen bg-[#080812]" />;
+  }
 
   return (
     <ErrorBoundary>
