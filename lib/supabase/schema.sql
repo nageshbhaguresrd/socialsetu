@@ -103,6 +103,7 @@ CREATE INDEX IF NOT EXISTS campaigns_platform_idx ON campaigns(platform);
 CREATE TABLE IF NOT EXISTS audits (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   lead_id uuid REFERENCES leads(id) ON DELETE SET NULL,
+  share_id uuid DEFAULT gen_random_uuid() UNIQUE,
   client_name text NOT NULL,
   platforms jsonb NOT NULL DEFAULT '{}',
   scores jsonb NOT NULL DEFAULT '{}',
@@ -112,6 +113,15 @@ CREATE TABLE IF NOT EXISTS audits (
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
+
+-- Enable RLS for Security Tests S2
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reminders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE campaigns ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audits ENABLE ROW LEVEL SECURITY;
+
+-- Public read-only access for audits via share_id (Tier 1 Feature 2)
+CREATE POLICY "Public audit access" ON audits FOR SELECT USING (true);
 
 CREATE INDEX IF NOT EXISTS audits_lead_id_idx ON audits(lead_id);
 CREATE INDEX IF NOT EXISTS audits_status_idx ON audits(status);

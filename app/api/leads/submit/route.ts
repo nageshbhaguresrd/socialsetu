@@ -43,6 +43,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Submission failed' }, { status: 500 });
     }
 
+    // Tier 1 Feature 5: Lead Scoring Automation
+    const calculateLeadScore = (budget: string, industry: string, source: string) => {
+      let score = 40; // Base score
+      
+      if (source === 'audit_form') score += 20; // High intent
+      
+      const b = budget.toLowerCase();
+      if (b.includes('1.5l+') || b.includes('high')) score += 30;
+      else if (b.includes('75k')) score += 15;
+
+      const highMargin = ['real estate', 'healthcare', 'saas', 'luxury', 'it'];
+      if (highMargin.some(ind => industry.toLowerCase().includes(ind))) score += 10;
+      
+      return Math.min(score, 99);
+    };
+
     try {
       const leadData = {
         name,
@@ -56,9 +72,15 @@ export async function POST(req: Request) {
         email: email || '',
         notes: message || '',
         value: 0,
-        ai_score: 65,
+        ai_score: calculateLeadScore(budget || '', industry || '', source || ''),
         priority: 'High',
       };
+
+      // Defensive: ensure empty name can't create a lead row
+      if (!leadData.name || !leadData.name.trim()) {
+        return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+      }
+
 
       const { data: newLead, error: leadError } = await supabase
         .from('leads')

@@ -69,6 +69,12 @@ export async function PATCH(
       }
     );
 
+    // Explicit Auth Check for Security Test S2/A6
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // Update lead in database
     const { data: updatedLead, error } = await supabase
       .from('leads')
@@ -125,6 +131,12 @@ export async function DELETE(
         },
       }
     );
+
+    // Explicit Auth Check for Security Test S2/A6
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     // Check if lead exists first
     const { data: existingLead } = await supabase

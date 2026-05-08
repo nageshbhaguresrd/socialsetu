@@ -8,10 +8,15 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
-    // Basic rate limit/security check
-    if (!req.headers.get("User-Agent")) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Require authentication (prevents unauthenticated prompt abuse)
+    const { createClient } = await import('@/lib/supabase/server');
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+
 
     try {
         const body = await req.json();
