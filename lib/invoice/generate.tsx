@@ -177,7 +177,10 @@ export async function generateInvoice(data: InvoiceData): Promise<Buffer> {
     </Document>
   );
 
-  const pdfBytes = await pdf(doc).toBuffer();
-
-  return Buffer.from(pdfBytes);
+  const pdfInstance = pdf(doc);
+  
+  // Use asBlob() which is more reliable, then convert to Buffer
+  const blob = await pdfInstance.toBlob();
+  const arrayBuffer = await blob.arrayBuffer();
+  return Buffer.from(arrayBuffer);
 }

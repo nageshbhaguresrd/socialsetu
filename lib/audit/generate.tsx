@@ -1,10 +1,13 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import type { AuditReport } from '@/lib/types/audit'
+import type { RawPlatformMetrics } from './analyzer'
+import { sanitizeForPDF } from './platformUtils'
 
 interface AuditPDFData {
   clientName: string
   report: AuditReport
   generatedAt: string
+  rawMetrics?: RawPlatformMetrics[]
 }
 
 const styles = StyleSheet.create({
@@ -119,6 +122,32 @@ const styles = StyleSheet.create({
     fontWeight: 700,
     color: '#6C63FF',
   },
+  metricsTable: {
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  metricsRow: {
+    flexDirection: 'row',
+    padding: '4 8',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    alignItems: 'center',
+  },
+  metricsLabel: {
+    fontSize: 8,
+    color: '#666',
+    width: '40%',
+    fontWeight: 500,
+  },
+  metricsValue: {
+    fontSize: 9,
+    color: '#1A1A2E',
+    width: '60%',
+    fontWeight: 600,
+  },
   subSection: {
     marginBottom: 8,
   },
@@ -221,6 +250,12 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: '#999',
   },
+  noDataText: {
+    fontSize: 9,
+    color: '#999',
+    fontStyle: 'italic',
+    padding: 8,
+  },
 })
 
 const gradeColor = (grade: string) => {
@@ -233,8 +268,42 @@ const gradeColor = (grade: string) => {
   }
 }
 
+/**
+ * Check if a platform has meaningful data to display.
+ * A platform should only be shown if it has a score > 0 or has raw metrics.
+ */
+function shouldRenderPlatform(platform: string, info: any, rawMetrics?: RawPlatformMetrics[]): boolean {
+  // Always show if score > 0
+  if (info && info.score > 0) return true
+  
+  // Check if there are raw metrics for this platform
+  if (rawMetrics && rawMetrics.some(rm => rm.platform === platform)) return true
+  
+  return false
+}
+
+/**
+ * Get raw metrics for a specific platform.
+ */
+function getRawMetricsForPlatform(platform: string, rawMetrics?: RawPlatformMetrics[]): RawPlatformMetrics | undefined {
+  if (!rawMetrics) return undefined
+  return rawMetrics.find(rm => rm.platform === platform)
+}
+
+/**
+ * Sanitize all text content in a platform info object.
+ */
+function sanitizePlatformInfo(info: any): any {
+  return {
+    ...info,
+    strengths: info.strengths?.map((s: string) => sanitizeForPDF(s)) || [],
+    weaknesses: info.weaknesses?.map((s: string) => sanitizeForPDF(s)) || [],
+    quickWins: info.quickWins?.map((s: string) => sanitizeForPDF(s)) || [],
+  }
+}
+
 export async function generateAuditPDF(data: AuditPDFData): Promise<Buffer> {
-  const { report } = data
+  const { report, rawMetrics } = data
 
   const overallGrade = (score: number): string => {
     if (score >= 85) return 'A'
@@ -243,6 +312,11 @@ export async function generateAuditPDF(data: AuditPDFData): Promise<Buffer> {
     if (score >= 40) return 'D'
     return 'F'
   }
+
+  // Filter platforms to only show connected ones with data
+  const connectedPlatforms = Object.entries(report.platforms || {}).filter(([platform, info]) =>
+    shouldRenderPlatform(platform, info, rawMetrics)
+  )
 
   const doc = (
     <Document>
@@ -262,16 +336,16 @@ export async function generateAuditPDF(data: AuditPDFData): Promise<Buffer> {
 
         {/* Client */}
         <View style={styles.clientSection}>
-          <Text style={styles.clientName}>{data.clientName}</Text>
+          <Text style={styles.clientName}>{sanitizeForPDF(data.clientName)}</Text>
           <Text style={{ fontSize: 10, color: '#666' }}>
-            Overall Score: {report.overallScore}/100 &nbsp;|&nbsp; Grade: {overallGrade(report.overallScore)}
+            Overall Score: {report.overallScore}/100 | Grade: {overallGrade(report.overallScore)}
           </Text>
         </View>
 
         {/* Summary */}
         <Text style={styles.sectionLabel}>Executive Summary</Text>
         <View style={styles.summaryBox}>
-          <Text style={styles.summaryText}>{report.summary}</Text>
+          <Text style={styles.summaryText}>{sanitizeForPDF(report.summary)}</Text>
         </View>
 
         {/* Score Cards */}
@@ -291,59 +365,96 @@ export async function generateAuditPDF(data: AuditPDFData): Promise<Buffer> {
           ))}
         </View>
 
-        {/* Platforms */}
-        <Text style={styles.sectionLabel}>Platform Analysis</Text>
-        {Object.entries(report.platforms || {}).map(([platform, info]) => (
-          <View key={platform} style={styles.platformCard}>
-            <View style={styles.platformHeader}>
-              <Text style={styles.platformName}>
-                {platform.charAt(0).toUpperCase() + platform.slice(1)}
-              </Text>
-              <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-                <Text style={styles.scoreBadge}>{info.score}/100</Text>
-                <Text style={{ ...styles.gradeBadge, backgroundColor: gradeColor(info.grade) }}>
-                  {info.grade}
-                </Text>
-              </View>
-            </View>
+        {/* Platforms - Only render connected platforms */}
+        {connectedPlatforms.length > 0 && (
+          <>
+            <Text style={styles.sectionLabel}>Platform Analysis</Text>
+            {connectedPlatforms.map(([platform, info]) => {
+              const sanitizedInfo = sanitizePlatformInfo(info)
+              const platformRawMetrics = getRawMetricsForPlatform(platform, rawMetrics)
 
-            <View style={styles.subSection}>
-              <Text style={styles.subSectionTitle}>Strengths</Text>
-              <View style={styles.bulletRow}>
-                {info.strengths.slice(0, 3).map((s, i) => (
-                  <Text key={i} style={styles.bullet}>• {s}</Text>
-                ))}
-              </View>
-            </View>
+              return (
+                <View key={platform} style={styles.platformCard}>
+                  <View style={styles.platformHeader}>
+                    <Text style={styles.platformName}>
+                      {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                    </Text>
+                    <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                      <Text style={styles.scoreBadge}>{sanitizedInfo.score}/100</Text>
+                      <Text style={{ ...styles.gradeBadge, backgroundColor: gradeColor(sanitizedInfo.grade) }}>
+                        {sanitizedInfo.grade}
+                      </Text>
+                    </View>
+                  </View>
 
-            <View style={styles.subSection}>
-              <Text style={styles.subSectionTitle}>Weaknesses</Text>
-              <View style={styles.bulletRow}>
-                {info.weaknesses.slice(0, 3).map((s, i) => (
-                  <Text key={i} style={styles.bullet}>• {s}</Text>
-                ))}
-              </View>
-            </View>
+                  {/* Raw Metrics Display */}
+                  {platformRawMetrics && platformRawMetrics.metrics.length > 0 && (
+                    <View style={styles.subSection}>
+                      <Text style={styles.subSectionTitle}>Key Metrics</Text>
+                      <View style={styles.metricsTable}>
+                        {platformRawMetrics.metrics.map((metric, idx) => (
+                          <View key={idx} style={styles.metricsRow}>
+                            <Text style={styles.metricsLabel}>{sanitizeForPDF(metric.label)}</Text>
+                            <Text style={styles.metricsValue}>{sanitizeForPDF(metric.value)}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
 
-            <View style={styles.subSection}>
-              <Text style={styles.subSectionTitle}>Quick Wins</Text>
-              <View style={styles.bulletRow}>
-                {info.quickWins.slice(0, 3).map((s, i) => (
-                  <Text key={i} style={styles.bullet}>→ {s}</Text>
-                ))}
-              </View>
-            </View>
-          </View>
-        ))}
+                  {/* Strengths */}
+                  {sanitizedInfo.strengths.length > 0 && (
+                    <View style={styles.subSection}>
+                      <Text style={styles.subSectionTitle}>Strengths</Text>
+                      <View style={styles.bulletRow}>
+                        {sanitizedInfo.strengths.slice(0, 3).map((s: string, i: number) => (
+                          <Text key={i} style={styles.bullet}>- {s}</Text>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Weaknesses */}
+                  {sanitizedInfo.weaknesses.length > 0 && (
+                    <View style={styles.subSection}>
+                      <Text style={styles.subSectionTitle}>Weaknesses</Text>
+                      <View style={styles.bulletRow}>
+                        {sanitizedInfo.weaknesses.slice(0, 3).map((s: string, i: number) => (
+                          <Text key={i} style={styles.bullet}>- {s}</Text>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Quick Wins */}
+                  {sanitizedInfo.quickWins.length > 0 && (
+                    <View style={styles.subSection}>
+                      <Text style={styles.subSectionTitle}>Quick Wins</Text>
+                      <View style={styles.bulletRow}>
+                        {sanitizedInfo.quickWins.slice(0, 3).map((s: string, i: number) => (
+                          <Text key={i} style={styles.bullet}>- {s}</Text>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+                </View>
+              )
+            })}
+          </>
+        )}
 
         {/* Top Issues */}
-        <Text style={styles.sectionLabel}>Top Issues</Text>
-        {report.topIssues.slice(0, 5).map((issue, i) => (
-          <View key={i} style={styles.issueRow}>
-            <Text style={styles.issueNum}>{i + 1}.</Text>
-            <Text style={styles.issueText}>{issue}</Text>
-          </View>
-        ))}
+        {report.topIssues && report.topIssues.length > 0 && (
+          <>
+            <Text style={styles.sectionLabel}>Top Issues</Text>
+            {report.topIssues.slice(0, 5).map((issue, i) => (
+              <View key={i} style={styles.issueRow}>
+                <Text style={styles.issueNum}>{i + 1}.</Text>
+                <Text style={styles.issueText}>{sanitizeForPDF(issue)}</Text>
+              </View>
+            ))}
+          </>
+        )}
 
         {/* 30-Day Action Plan */}
         <Text style={styles.sectionLabel}>30-Day Action Plan</Text>
@@ -352,7 +463,7 @@ export async function generateAuditPDF(data: AuditPDFData): Promise<Buffer> {
             <View key={week} style={styles.weekCol}>
               <Text style={styles.weekTitle}>Week {i + 1}</Text>
               {(report.thirtyDayActionPlan as any)[week]?.map((action: string, j: number) => (
-                <Text key={j} style={styles.actionItem}>→ {action}</Text>
+                <Text key={j} style={styles.actionItem}>- {sanitizeForPDF(action)}</Text>
               ))}
             </View>
           ))}
@@ -363,34 +474,44 @@ export async function generateAuditPDF(data: AuditPDFData): Promise<Buffer> {
         <View style={styles.benchGrid}>
           <View style={styles.benchCard}>
             <Text style={styles.benchLabel}>Engagement Rate</Text>
-            <Text style={styles.benchValue}>{report.industryBenchmark?.engagementRate || 'N/A'}</Text>
+            <Text style={styles.benchValue}>{sanitizeForPDF(report.industryBenchmark?.engagementRate || 'N/A')}</Text>
           </View>
           <View style={styles.benchCard}>
             <Text style={styles.benchLabel}>Posting Frequency</Text>
-            <Text style={styles.benchValue}>{report.industryBenchmark?.postingFrequency || 'N/A'}</Text>
+            <Text style={styles.benchValue}>{sanitizeForPDF(report.industryBenchmark?.postingFrequency || 'N/A')}</Text>
           </View>
           <View style={styles.benchCard}>
             <Text style={styles.benchLabel}>Follower Growth</Text>
-            <Text style={styles.benchValue}>{report.industryBenchmark?.followerGrowthRate || 'N/A'}</Text>
+            <Text style={styles.benchValue}>{sanitizeForPDF(report.industryBenchmark?.followerGrowthRate || 'N/A')}</Text>
           </View>
         </View>
 
         {/* Competitive Advantages */}
-        <Text style={styles.sectionLabel}>Competitive Advantages</Text>
-        {report.competitiveAdvantages?.map((adv, i) => (
-          <Text key={i} style={{ ...styles.bullet, paddingLeft: 0, marginBottom: 3 }}>★ {adv}</Text>
-        ))}
+        {report.competitiveAdvantages && report.competitiveAdvantages.length > 0 && (
+          <>
+            <Text style={styles.sectionLabel}>Competitive Advantages</Text>
+            {report.competitiveAdvantages.map((adv, i) => (
+              <Text key={i} style={{ ...styles.bullet, paddingLeft: 0, marginBottom: 3 }}>+ {sanitizeForPDF(adv)}</Text>
+            ))}
+          </>
+        )}
 
         {/* Footer */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>SocialSetu Digital — hello@socialsetu.com — +91 9876543210</Text>
-          <Text style={styles.footerText}>Confidential — For client use only</Text>
+          <Text style={styles.footerText}>SocialSetu Digital - hello@socialsetu.com - +91 9876543210</Text>
+          <Text style={styles.footerText}>Confidential - For client use only</Text>
         </View>
       </Page>
     </Document>
   )
 
   const { pdf } = await import('@react-pdf/renderer')
-  const pdfBytes = await pdf(doc).toBuffer()
-  return Buffer.from(pdfBytes)
+  
+  // Generate PDF and convert to Buffer
+  const pdfInstance = pdf(doc)
+  
+  // Use asBlob() which is more reliable, then convert to Buffer
+  const blob = await pdfInstance.toBlob()
+  const arrayBuffer = await blob.arrayBuffer()
+  return Buffer.from(arrayBuffer)
 }

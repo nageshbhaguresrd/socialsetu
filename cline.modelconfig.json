@@ -1,0 +1,89 @@
+{
+  "$schema": "https://example.com/cline-model-config-schema.json",
+  "name": "SocialSetu Safe Non-Streaming Config",
+  "description": "Production-safe configuration with NO streaming, NO tool calling",
+  
+  "modelProvider": "openrouter",
+  "model": "openrouter/google/gemma-2-9b-it:free",
+  
+  "streaming": false,
+  "supportsFunctions": false,
+  "supportsTools": false,
+  "supportsParallelToolCalls": false,
+  
+  "agentMode": false,
+  "toolCalling": false,
+  
+  "openaiCompatible": true,
+  "dropUnsupportedParams": true,
+  
+  "apiBaseUrl": "https://openrouter.ai/api/v1",
+  
+  "primaryModel": "openrouter/google/gemma-2-9b-it:free",
+  "fallbackModels": [
+    "openrouter/meta-llama/llama-3.1-8b-instruct:free",
+    "openrouter/mistralai/mistral-7b-instruct:free"
+  ],
+  
+  "retry": {
+    "enabled": true,
+    "maxRetries": 2,
+    "retryOnRateLimit": true,
+    "retryOnTimeout": true,
+    "retryOnStreamError": false,
+    "exponentialBackoff": true,
+    "doNotRetryOn": [
+      "InvalidRequestError",
+      "AuthenticationError",
+      "BadRequestError",
+      "stream_initialization_failed"
+    ]
+  },
+  
+  "timeout": {
+    "requestTimeoutMs": 45000,
+    "connectionTimeoutMs": 10000
+  },
+  
+  "sanitization": {
+    "enabled": true,
+    "removeToolMessages": true,
+    "removeToolCalls": true,
+    "removeFunctionCalls": true,
+    "allowedRoles": ["system", "user", "assistant"],
+    "coerceUnknownRolesTo": "assistant"
+  },
+  
+  "validation": {
+    "enabled": true,
+    "validateBeforeSend": true,
+    "rejectOnToolFields": true,
+    "logWarnings": true
+  },
+  
+  "logging": {
+    "debug": false,
+    "logRequests": true,
+    "logResponses": true,
+    "logFallbacks": true,
+    "logSanitization": true,
+    "logSelectedModel": true,
+    "logStreamingDisabled": true
+  },
+  
+  "features": {
+    "disableMCP": true,
+    "disableBrowserTools": true,
+    "disableFileSystemTools": true,
+    "disableAgentMode": true,
+    "disableContentPolicyFallback": true,
+    "disableStreaming": true
+  },
+  
+  "providerHealth": {
+    "enabled": true,
+    "rotateOnFailure": true,
+    "doNotRetryFailedProvider": true,
+    "healthCheckInterval": 60000
+  }
+}

@@ -144,6 +144,7 @@ export default function AuditResultPage() {
 
   useEffect(() => {
     if (!needsPoll) return
+    
     let msgIdx = 0
     const interval = setInterval(() => {
       msgIdx = (msgIdx + 1) % SCORE_MESSAGES.length
@@ -151,25 +152,39 @@ export default function AuditResultPage() {
       fetch(`/api/audit/${auditId}/status`)
         .then(r => r.json())
         .then(data => {
-          if (data.status === 'completed') {
+          // Stop polling if completed or failed
+          if (data.status === 'completed' || data.status === 'failed') {
             clearInterval(interval)
-            fetchAudit()
-            setNeedsPoll(false)
-          } else if (data.status === 'failed') {
-            clearInterval(interval)
-            setLoading(false)
-            setNeedsPoll(false)
-            setError('Audit generation failed.')
+            if (data.status === 'completed') {
+              fetchAudit()
+              setNeedsPoll(false)
+            } else {
+              setLoading(false)
+              setNeedsPoll(false)
+              setError('Audit generation failed. Please try again.')
+            }
           }
         })
         .catch(() => {
           clearInterval(interval)
           setLoading(false)
           setNeedsPoll(false)
-          setError('Failed to poll status.')
+          setError('Failed to poll status. Please try again.')
         })
     }, 3000)
-    return () => clearInterval(interval)
+    
+    // Timeout protection - stop polling after 120 seconds
+    const timeout = setTimeout(() => {
+      clearInterval(interval)
+      setLoading(false)
+      setNeedsPoll(false)
+      setError('Audit timeout. Please try again.')
+    }, 120000)
+    
+    return () => {
+      clearInterval(interval)
+      clearTimeout(timeout)
+    }
   }, [needsPoll, auditId, fetchAudit])
 
   const handleDownload = async () => {

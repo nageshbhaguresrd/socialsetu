@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { contactSubmissionSchema } from '@/lib/validation/schemas';
+import { zodErrorToFieldErrors } from '@/lib/validation/zod-errors';
+
 import { motion } from 'motion/react';
 import { CheckCircle, Clock, TrendingUp, Users, MessageSquare, Phone } from 'lucide-react';
 import Link from 'next/link';
@@ -9,16 +12,56 @@ export default function LandingPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
 
+  const [values, setValues] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    website: '',
+  })
+
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [formError, setFormError] = useState('')
+
+  const validate = (nextValues = values) => {
+    const result = contactSubmissionSchema.safeParse({
+      name: nextValues.name,
+      source: 'audit_form',
+      email: nextValues.email,
+      phone: nextValues.phone,
+      website: nextValues.website,
+    })
+
+    if (result.success) return { ok: true as const, errors: {} as Record<string, string> }
+    return { ok: false as const, errors: zodErrorToFieldErrors(result.error) }
+  }
+
+  const handleChange = (key: keyof typeof values) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const next = { ...values, [key]: e.target.value }
+    setValues(next)
+
+    // live validation
+    const result = validate(next)
+    setFieldErrors(result.errors)
+    if (formError) setFormError('')
+  }
+
   const handleAuditSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormLoading(true);
-    
-    const formData = new FormData(e.currentTarget);
+    setFormError('');
+
+    const result = validate(values)
+    if (!result.ok) {
+      setFieldErrors(result.errors)
+      setFormLoading(false)
+      return
+    }
+
     const data = {
-      name: formData.get('name'),
-      email: formData.get('email'),
-      phone: formData.get('phone'),
-      message: formData.get('website'),
+      name: values.name,
+      email: values.email,
+      phone: values.phone,
+      message: values.website,
       source: 'audit_form'
     };
 
@@ -29,10 +72,17 @@ export default function LandingPage() {
         body: JSON.stringify(data),
       });
 
-      if (!response.ok) throw new Error();
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}))
+        // API currently returns only { error: string }. Map it to form-level.
+        setFormError(body?.error || 'Invalid submission')
+        return
+      }
+
       setFormSuccess(true);
+      setFieldErrors({})
     } catch {
-      alert("Something went wrong. Please WhatsApp us.");
+      setFormError('Something went wrong. Please WhatsApp us.');
     } finally {
       setFormLoading(false);
     }
@@ -71,35 +121,72 @@ export default function LandingPage() {
                 <p className="text-slate-600 mt-2">We&apos;ll contact you within 2 hours.</p>
               </div>
             ) : (
-            <>
-            <h3 className="text-xl font-bold mb-6 text-center">Claim Your Free Audit Now</h3>
-            <form className="space-y-4" onSubmit={handleAuditSubmit}>
-              <div>
-                <label className="block text-sm font-semibold mb-1.5 ml-1">Your Name</label>
-                <input type="text" name="name" placeholder="e.g. Rahul Sharma" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none" required />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-1.5 ml-1">Business Website / Instagram Handle</label>
-                <input type="text" name="website" placeholder="e.g. @yourbrand" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none" required />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold mb-1.5 ml-1">Email</label>
-                  <input type="email" name="email" placeholder="rahul@company.com" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none" required />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-1.5 ml-1">WhatsApp Phone</label>
-                  <input type="tel" name="phone" placeholder="+91" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none" required />
-                </div>
-              </div>
-              <button type="submit" disabled={formLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 transition-all transform hover:scale-[1.02] active:scale-95 mt-4">
-                {formLoading ? 'Sending...' : 'Get My Free Audit (Worth ₹5,000)'}
-              </button>
-              <p className="text-xs text-slate-400 text-center mt-4">
-                By signing up, you agree to receive a 1-on-1 strategy call. No obligation to purchase.
-              </p>
-            </form>
-            </>
+              <>
+                <h3 className="text-xl font-bold mb-6 text-center">Claim Your Free Audit Now</h3>
+                <form className="space-y-4" onSubmit={handleAuditSubmit}>
+                  <div>
+                    <label className="block text-sm font-semibold mb-1.5 ml-1">Your Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={values.name}
+                      onChange={handleChange('name')}
+                      placeholder="e.g. Rahul Sharma"
+                      className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none ${fieldErrors.name ? 'border-red-400' : 'border-slate-200'}`}
+                    />
+                    {fieldErrors.name && <p className="text-red-500 text-xs mt-1 ml-1">{fieldErrors.name}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-1.5 ml-1">Business Website / Instagram Handle</label>
+                    <input
+                      type="text"
+                      name="website"
+                      value={values.website}
+                      onChange={handleChange('website')}
+                      placeholder="e.g. @yourbrand"
+                      className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none ${fieldErrors.website ? 'border-red-400' : 'border-slate-200'}`}
+                    />
+                    {fieldErrors.website && <p className="text-red-500 text-xs mt-1 ml-1">{fieldErrors.website}</p>}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold mb-1.5 ml-1">Email</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={values.email}
+                        onChange={handleChange('email')}
+                        placeholder="rahul@company.com"
+                        className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none ${fieldErrors.email ? 'border-red-400' : 'border-slate-200'}`}
+                      />
+                      {fieldErrors.email && <p className="text-red-500 text-xs mt-1 ml-1">{fieldErrors.email}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-1.5 ml-1">WhatsApp Phone</label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={values.phone}
+                        onChange={handleChange('phone')}
+                        placeholder="+91"
+                        className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none ${fieldErrors.phone ? 'border-red-400' : 'border-slate-200'}`}
+                      />
+                      {fieldErrors.phone && <p className="text-red-500 text-xs mt-1 ml-1">{fieldErrors.phone}</p>}
+                    </div>
+                  </div>
+
+                  {formError && <p className="text-red-600 text-sm font-semibold mt-1">{formError}</p>}
+
+                  <button type="submit" disabled={formLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 transition-all transform hover:scale-[1.02] active:scale-95 mt-4">
+                    {formLoading ? 'Sending...' : 'Get My Free Audit (Worth ₹5,000)'}
+                  </button>
+                  <p className="text-xs text-slate-400 text-center mt-4">
+                    By signing up, you agree to receive a 1-on-1 strategy call. No obligation to purchase.
+                  </p>
+                </form>
+              </>
             )}
           </div>
         </motion.div>

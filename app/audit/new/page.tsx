@@ -1,6 +1,9 @@
 'use client'
 
 import { Suspense, useState, useEffect } from 'react'
+import { auditNewSchema } from '@/lib/validation/auditSchemas'
+import { zodErrorToFieldErrors } from '@/lib/validation/zod-errors'
+
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
@@ -114,6 +117,9 @@ function NewAuditForm() {
   const [error, setError] = useState('')
   const [auditId, setAuditId] = useState('')
 
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+
+
   const leadIdFromUrl = searchParams.get('leadId') || ''
   const nameFromUrl = searchParams.get('name') || ''
   const industryFromUrl = searchParams.get('industry') || ''
@@ -147,21 +153,60 @@ function NewAuditForm() {
 
   const hasAtLeastOnePlatform = Object.values(form.platforms).some(v => v.trim())
 
+  const validateField = (field: string, value: any) => {
+    const nextForm = { ...form };
+    if (field.startsWith('platforms.')) {
+      const platform = field.split('.')[1] as keyof FormState['platforms'];
+      nextForm.platforms = { ...form.platforms, [platform]: value };
+    } else {
+      (nextForm as any)[field] = value;
+    }
+
+    return auditNewSchema.safeParse({
+      clientName: nextForm.clientName,
+      industry: nextForm.industry,
+      targetAudience: nextForm.targetAudience,
+      businessGoal: nextForm.businessGoal,
+      leadId: nextForm.leadId,
+      platforms: nextForm.platforms,
+    })
+  }
+
+  const handleChange = (field: string, value: any) => {
+    if (field.startsWith('platforms.')) {
+      const platform = field.split('.')[1] as keyof FormState['platforms'];
+      setPlatform(platform, value);
+    } else {
+      setForm(prev => ({ ...prev, [field]: value }));
+    }
+    
+    const r = validateField(field, value);
+    setFieldErrors(r.success ? {} : zodErrorToFieldErrors(r.error));
+    setError('');
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setFieldErrors({})
 
-    if (!form.clientName.trim()) {
-      setError('Client name is required')
-      return
-    }
+    const result = auditNewSchema.safeParse({
+      clientName: form.clientName,
+      industry: form.industry,
+      targetAudience: form.targetAudience,
+      businessGoal: form.businessGoal,
+      leadId: form.leadId,
+      platforms: form.platforms,
+    })
 
-    if (!hasAtLeastOnePlatform) {
-      setError('At least one social media handle is required')
+    if (!result.success) {
+      setFieldErrors(zodErrorToFieldErrors(result.error))
+      setError('Please fix the highlighted fields')
       return
     }
 
     setSubmitting(true)
+
 
     try {
       const cleanPlatforms: Record<string, string> = {}
@@ -200,6 +245,7 @@ function NewAuditForm() {
 
   return (
     <div className="min-h-screen bg-[#080812] text-white">
+
       {/* Header */}
       <div className="border-b border-[#1E1E35] px-6 py-4 flex items-center gap-4">
         <button
@@ -229,11 +275,15 @@ function NewAuditForm() {
                   <input
                     type="text"
                     value={form.clientName}
-                    onChange={e => setForm(p => ({ ...p, clientName: e.target.value }))}
+                    onChange={e => handleChange('clientName', e.target.value)}
                     placeholder="e.g. The Bombay Burger Co."
-                    className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-sm text-white placeholder-[#4A4A6A] outline-none focus:border-[#FF6B35]/50 transition-all"
+                    className={`w-full bg-[#1A1A2E] border rounded-xl p-3 text-sm text-white placeholder-[#4A4A6A] outline-none focus:border-primary/50 transition-all ${fieldErrors.clientName ? 'border-[#EF4444]' : 'border-[#2A2A45]'}`}
                     required
                   />
+                  {fieldErrors.clientName && (
+                    <p className="text-[#EF4444] text-xs mt-1">{fieldErrors.clientName}</p>
+                  )}
+
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -243,14 +293,17 @@ function NewAuditForm() {
                     </label>
                     <select
                       value={form.industry}
-                      onChange={e => setForm(p => ({ ...p, industry: e.target.value }))}
-                      className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-sm text-white outline-none focus:border-[#FF6B35]/50 transition-all"
+                      onChange={e => handleChange('industry', e.target.value)}
+                      className={`w-full bg-[#1A1A2E] border rounded-xl p-3 text-sm text-white outline-none focus:border-primary/50 transition-all ${fieldErrors.industry ? 'border-[#EF4444]' : 'border-[#2A2A45]'}`}
                     >
                       <option value="">Select industry</option>
                       {INDUSTRIES.map(i => (
                         <option key={i} value={i}>{i}</option>
                       ))}
                     </select>
+                    {fieldErrors.industry && (
+                      <p className="text-[#EF4444] text-[10px] mt-1">{fieldErrors.industry}</p>
+                    )}
                   </div>
 
                   <div>
@@ -259,14 +312,17 @@ function NewAuditForm() {
                     </label>
                     <select
                       value={form.businessGoal}
-                      onChange={e => setForm(p => ({ ...p, businessGoal: e.target.value }))}
-                      className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-sm text-white outline-none focus:border-[#FF6B35]/50 transition-all"
+                      onChange={e => handleChange('businessGoal', e.target.value)}
+                      className={`w-full bg-[#1A1A2E] border rounded-xl p-3 text-sm text-white outline-none focus:border-primary/50 transition-all ${fieldErrors.businessGoal ? 'border-[#EF4444]' : 'border-[#2A2A45]'}`}
                     >
                       <option value="">Select goal</option>
                       {BUSINESS_GOALS.map(g => (
                         <option key={g} value={g}>{g}</option>
                       ))}
                     </select>
+                    {fieldErrors.businessGoal && (
+                      <p className="text-[#EF4444] text-[10px] mt-1">{fieldErrors.businessGoal}</p>
+                    )}
                   </div>
                 </div>
 
@@ -277,10 +333,13 @@ function NewAuditForm() {
                   <input
                     type="text"
                     value={form.targetAudience}
-                    onChange={e => setForm(p => ({ ...p, targetAudience: e.target.value }))}
+                    onChange={e => handleChange('targetAudience', e.target.value)}
                     placeholder="e.g. 25-40 year old urban professionals in Mumbai"
-                    className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-sm text-white placeholder-[#4A4A6A] outline-none focus:border-[#FF6B35]/50 transition-all"
+                    className={`w-full bg-[#1A1A2E] border rounded-xl p-3 text-sm text-white placeholder-[#4A4A6A] outline-none focus:border-primary/50 transition-all ${fieldErrors.targetAudience ? 'border-[#EF4444]' : 'border-[#2A2A45]'}`}
                   />
+                  {fieldErrors.targetAudience && (
+                    <p className="text-[#EF4444] text-[10px] mt-1">{fieldErrors.targetAudience}</p>
+                  )}
                 </div>
 
                 <div>
@@ -316,9 +375,9 @@ function NewAuditForm() {
                       <input
                         type="text"
                         value={form.platforms[key as keyof typeof form.platforms]}
-                        onChange={e => setPlatform(key as keyof typeof form.platforms, e.target.value)}
+                        onChange={e => handleChange(`platforms.${key}`, e.target.value)}
                         placeholder={placeholder}
-                        className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-sm text-white placeholder-[#4A4A6A] outline-none focus:border-[#FF6B35]/50 transition-all"
+                        className={`w-full bg-[#1A1A2E] border rounded-xl p-3 text-sm text-white placeholder-[#4A4A6A] outline-none focus:border-primary/50 transition-all ${fieldErrors.platforms ? 'border-[#EF4444]' : 'border-[#2A2A45]'}`}
                       />
                     </div>
                   ))}

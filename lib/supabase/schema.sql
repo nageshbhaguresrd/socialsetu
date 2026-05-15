@@ -120,8 +120,33 @@ ALTER TABLE reminders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE campaigns ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audits ENABLE ROW LEVEL SECURITY;
 
--- Public read-only access for audits via share_id (Tier 1 Feature 2)
+-- Policies for leads
+CREATE POLICY "Allow authenticated users to select leads" 
+  ON leads FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "Allow authenticated users to insert leads" 
+  ON leads FOR INSERT TO authenticated WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated users to update leads" 
+  ON leads FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated users to delete leads" 
+  ON leads FOR DELETE TO authenticated USING (true);
+
+-- Policies for audits
+-- SELECT is already public (Tier 1 Feature 2)
 CREATE POLICY "Public audit access" ON audits FOR SELECT USING (true);
+
+-- Allow all users to create audits (needed for public landing pages/lead forms)
+CREATE POLICY "Allow anyone to insert audits"
+  ON audits FOR INSERT 
+  WITH CHECK (true);
+
+-- Allow authenticated users to update their audits
+CREATE POLICY "Authed can update audits"
+  ON audits FOR UPDATE
+  USING (true)
+  WITH CHECK (true);
 
 CREATE INDEX IF NOT EXISTS audits_lead_id_idx ON audits(lead_id);
 CREATE INDEX IF NOT EXISTS audits_status_idx ON audits(status);

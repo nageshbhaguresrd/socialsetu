@@ -1,0 +1,75 @@
+{
+  "$schema": "https://example.com/vscode-ai-model-config-schema.json",
+  "name": "SocialSetu Safe AI Config",
+  "description": "Production-safe configuration with NO tool/function calling",
+  
+  "modelProvider": "litellm",
+  "model": "openrouter/meta-llama/llama-3.1-8b-instruct:free",
+  
+  "supportsFunctions": false,
+  "supportsTools": false,
+  "supportsParallelToolCalls": false,
+  
+  "agentMode": false,
+  "toolCalling": false,
+  
+  "openaiCompatible": true,
+  "dropUnsupportedParams": true,
+  
+  "apiBaseUrl": "https://openrouter.ai/api/v1",
+  
+  "primaryModel": "openrouter/meta-llama/llama-3.1-8b-instruct:free",
+  "fallbackModels": [
+    "openrouter/google/gemma-2-9b-it:free",
+    "openrouter/mistralai/mistral-7b-instruct:free"
+  ],
+  
+  "retry": {
+    "enabled": true,
+    "maxRetries": 1,
+    "retryOnRateLimit": true,
+    "retryOnTimeout": true,
+    "doNotRetryOn": [
+      "InvalidRequestError",
+      "AuthenticationError",
+      "BadRequestError"
+    ]
+  },
+  
+  "timeout": {
+    "requestTimeoutMs": 35000,
+    "connectionTimeoutMs": 10000
+  },
+  
+  "sanitization": {
+    "enabled": true,
+    "removeToolMessages": true,
+    "removeToolCalls": true,
+    "removeFunctionCalls": true,
+    "allowedRoles": ["system", "user", "assistant"],
+    "coerceUnknownRolesTo": "assistant"
+  },
+  
+  "validation": {
+    "enabled": true,
+    "validateBeforeSend": true,
+    "rejectOnToolFields": true,
+    "logWarnings": true
+  },
+  
+  "logging": {
+    "debug": false,
+    "logRequests": true,
+    "logResponses": true,
+    "logFallbacks": true,
+    "logSanitization": true
+  },
+  
+  "features": {
+    "disableMCP": true,
+    "disableBrowserTools": true,
+    "disableFileSystemTools": true,
+    "disableAgentMode": true,
+    "disableContentPolicyFallback": true
+  }
+}
