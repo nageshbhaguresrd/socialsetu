@@ -13,9 +13,9 @@ interface InvoiceData {
   clientCity: string;
   items: InvoiceItem[];
   gstNumber?: string;
-  agencyName: 'SocialSetu Digital';
-  agencyPhone: '+91 9876543210';
-  agencyEmail: 'hello@socialsetu.com';
+  agencyName?: string;
+  agencyPhone?: string;
+  agencyEmail?: string;
 }
 
 const styles = StyleSheet.create({
@@ -142,7 +142,7 @@ export async function generateInvoice(data: InvoiceData): Promise<Buffer> {
           {data.items.map((item, index) => (
             <View key={index} style={styles.tableRow}>
               <Text style={styles.descriptionCol}>{item.description}</Text>
-              <Text style={styles.amountCol}>₹{item.amount.toLocaleString('en-IN')}</Text>
+              <Text style={styles.amountCol}>Rs. {item.amount.toLocaleString('en-IN')}</Text>
             </View>
           ))}
         </View>
@@ -150,26 +150,26 @@ export async function generateInvoice(data: InvoiceData): Promise<Buffer> {
         <View style={styles.totals}>
           <View style={styles.totalRow}>
             <Text>Subtotal:</Text>
-            <Text>₹{data.items.reduce((sum, item) => sum + item.amount, 0).toLocaleString('en-IN')}</Text>
+            <Text>Rs. {data.items.reduce((sum, item) => sum + item.amount, 0).toLocaleString('en-IN')}</Text>
           </View>
           <View style={styles.totalRow}>
             <Text>GST (18%):</Text>
-            <Text>₹{Math.round(data.items.reduce((sum, item) => sum + item.amount, 0) * 0.18).toLocaleString('en-IN')}</Text>
+            <Text>Rs. {Math.round(data.items.reduce((sum, item) => sum + item.amount, 0) * 0.18).toLocaleString('en-IN')}</Text>
           </View>
           <View style={[styles.totalRow, { marginTop: 12 }]}>
             <Text style={styles.totalLabel}>TOTAL:</Text>
-            <Text style={styles.totalValue}>₹{Math.round(data.items.reduce((sum, item) => sum + item.amount, 0) * 1.18).toLocaleString('en-IN')}</Text>
+            <Text style={styles.totalValue}>Rs. {Math.round(data.items.reduce((sum, item) => sum + item.amount, 0) * 1.18).toLocaleString('en-IN')}</Text>
           </View>
         </View>
 
         <View style={styles.footer}>
           <View>
             <Text>Thanks for your business!</Text>
-            <Text>SocialSetu Digital</Text>
+            <Text>{data.agencyName || 'SocialSetu Digital'}</Text>
           </View>
           <View style={{ textAlign: 'right' }}>
-            <Text>+91 9876543210</Text>
-            <Text>hello@socialsetu.com</Text>
+            <Text>{data.agencyPhone || '+91 9876543210'}</Text>
+            <Text>{data.agencyEmail || 'hello@socialsetu.com'}</Text>
             {data.gstNumber && <Text>GST: {data.gstNumber}</Text>}
           </View>
         </View>

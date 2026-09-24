@@ -1,9 +1,24 @@
 import { z } from 'zod';
 
+export function normalizeIndianPhone(input?: string): string {
+  if (!input) return '';
+  let cleaned = input.replace(/\D/g, '');
+  if (cleaned.length === 12 && cleaned.startsWith('91')) {
+    cleaned = cleaned.slice(2);
+  }
+  if (cleaned.length === 11 && cleaned.startsWith('0')) {
+    cleaned = cleaned.slice(1);
+  }
+  return cleaned;
+}
+
 export const leadSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
   business: z.string().min(2, "Business name required").max(200),
-  phone: z.string().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number"),
+  phone: z.string().transform(normalizeIndianPhone).refine(
+    (v) => /^[6-9]\d{9}$/.test(v),
+    "Enter a valid 10-digit Indian mobile number"
+  ),
   email: z.string().email("Enter a valid email").or(z.literal('')),
   city: z.string().min(1, "Select a city"),
   industry: z.string().min(1, "Select an industry"),
@@ -16,11 +31,11 @@ export const contactSubmissionSchema = z.object({
   phone: z
     .string()
     .optional()
+    .transform((v) => (v ? normalizeIndianPhone(v) : ''))
     .refine(
       (v) => {
-        if (!v) return true
-        // reuse the same indian mobile rule used in leadSchema
-        return /^[6-9]\d{9}$/.test(v)
+        if (!v) return true;
+        return /^[6-9]\d{9}$/.test(v);
       },
       "Enter a valid 10-digit Indian mobile number"
     ),

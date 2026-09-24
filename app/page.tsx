@@ -168,10 +168,9 @@ export default function SocialSetuPage() {
       name: formData.get('name'),
       city: formData.get('city'),
       industry: formData.get('industry'),
-      budget: budgetRef.current,
+      budget: budgetRef.current || '30-75K',
       message: formData.get('message'),
-      // phone and email need to be collected or added to form
-      phone: formData.get('phone'), // I need to check if these are in the form, if not, I might need to add them or use form data properly.
+      phone: formData.get('phone'),
       email: formData.get('email'),
       source: 'contact_form'
     };
@@ -183,10 +182,13 @@ export default function SocialSetuPage() {
         body: JSON.stringify(data),
       });
 
-      if (!response.ok) throw new Error();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to submit inquiry');
+      }
       setFormSuccess(true);
-    } catch {
-      setFormError('Something went wrong. Please WhatsApp us.');
+    } catch (err: any) {
+      setFormError(err.message || 'Something went wrong. Please WhatsApp us.');
     } finally {
       setFormLoading(false);
     }

@@ -208,7 +208,8 @@ export default function AuditResultPage() {
   }
 
   const handleShare = async () => {
-    await navigator.clipboard.writeText(window.location.href)
+    const shareUrl = `${window.location.origin}/report/${(audit as any)?.share_id || auditId}`
+    await navigator.clipboard.writeText(shareUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }

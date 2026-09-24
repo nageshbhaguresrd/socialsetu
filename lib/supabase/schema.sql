@@ -108,6 +108,7 @@ CREATE TABLE IF NOT EXISTS audits (
   platforms jsonb NOT NULL DEFAULT '{}',
   scores jsonb NOT NULL DEFAULT '{}',
   report jsonb NOT NULL DEFAULT '{}',
+  raw_metrics jsonb NOT NULL DEFAULT '{}',
   status text NOT NULL DEFAULT 'pending'
     CHECK (status IN ('pending','processing','completed','failed')),
   created_at timestamptz DEFAULT now(),

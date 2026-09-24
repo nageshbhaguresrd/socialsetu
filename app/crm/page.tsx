@@ -36,7 +36,14 @@ import {
   ChevronLeft,
   X,
   Activity,
-  BarChart2
+  BarChart2,
+  Send,
+  Copy,
+  Sparkles,
+  Calculator,
+  FileText,
+  Loader2,
+  Rocket
 } from "lucide-react";
 import {
   AreaChart,
@@ -179,7 +186,8 @@ const getActivityColor = (type: string) => {
 };
 
 const openWhatsApp = (lead: Lead, msg: string) => {
-  const url = `https://wa.me/91${lead.phone}?text=${encodeURIComponent(msg)}`;
+  const cleanPhone = (lead.phone || '').replace(/\D/g, '').slice(-10);
+  const url = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(msg)}`;
   window.open(url, "_blank");
 
   fetch(`/api/leads/${lead.id}/activities`, {
@@ -187,7 +195,7 @@ const openWhatsApp = (lead: Lead, msg: string) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       type: 'wa_sent',
-      description: `WhatsApp message sent to ${lead.phone}`,
+      description: `WhatsApp message sent to ${cleanPhone}`,
     }),
   }).catch(console.error);
 };
@@ -641,6 +649,862 @@ const AuditsListView = () => {
   )
 }
 
+/* ─── WHATSAPP OUTREACH VIEW ─── */
+
+const WhatsAppOutreachView = ({ leads = [] }: { leads: Lead[] }) => {
+  const [templates, setTemplates] = useState<WATemplate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedLeadId, setSelectedLeadId] = useState<string>('');
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
+  const [messageText, setMessageText] = useState<string>('');
+  const [showAddTemplate, setShowAddTemplate] = useState(false);
+  const [newTemplate, setNewTemplate] = useState({ name: '', body: '' });
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const selectedLead = useMemo(() => leads.find(l => l.id === selectedLeadId), [leads, selectedLeadId]);
+  const selectedTemplate = useMemo(() => templates.find(t => t.id === selectedTemplateId), [templates, selectedTemplateId]);
+
+  const computeMessage = (tpl?: WATemplate, lead?: Lead) => {
+    if (!tpl) return '';
+    let text = tpl.body;
+    const name = lead ? lead.name : '{name}';
+    const business = lead ? lead.business : '{business}';
+    const city = lead ? lead.city : '{city}';
+    return text.replace(/\{name\}/gi, name).replace(/\{business\}/gi, business).replace(/\{city\}/gi, city);
+  };
+
+  useEffect(() => {
+    fetch('/api/wa-templates')
+      .then(res => res.json())
+      .then(data => {
+        const list = Array.isArray(data) ? data : [];
+        setTemplates(list);
+        if (list.length > 0) {
+          setSelectedTemplateId(list[0].id);
+          setMessageText(list[0].body);
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const handleSelectLead = (id: string) => {
+    setSelectedLeadId(id);
+    const l = leads.find(x => x.id === id);
+    if (selectedTemplate) {
+      setMessageText(computeMessage(selectedTemplate, l));
+    }
+  };
+
+  const handleSelectTemplate = (t: WATemplate) => {
+    setSelectedTemplateId(t.id);
+    setMessageText(computeMessage(t, selectedLead));
+  };
+
+  const handleCreateTemplate = async () => {
+    if (!newTemplate.name.trim() || !newTemplate.body.trim()) return;
+    setSavingTemplate(true);
+    try {
+      const res = await fetch('/api/wa-templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newTemplate),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setTemplates(prev => [data, ...prev]);
+        setSelectedTemplateId(data.id);
+        setMessageText(computeMessage(data, selectedLead));
+        setShowAddTemplate(false);
+        setNewTemplate({ name: '', body: '' });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSavingTemplate(false);
+    }
+  };
+
+  const handleSend = () => {
+    if (!selectedLead) {
+      alert('Please select a lead to send this WhatsApp message');
+      return;
+    }
+    openWhatsApp(selectedLead, messageText);
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(messageText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold font-poppins flex items-center gap-2">
+            <MessageSquare className="text-[#10B981]" /> WhatsApp Outreach Hub
+          </h2>
+          <p className="text-sm text-text mt-1">
+            Personalized WhatsApp campaigns, templates & direct outreach for Indian businesses.
+          </p>
+        </div>
+        <Btn onClick={() => setShowAddTemplate(true)}>
+          <Plus size={16} /> New Template
+        </Btn>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: Template & Lead Selector */}
+        <div className="space-y-4">
+          <div className="bg-[#0F0F1A] border border-[#1E1E35] rounded-2xl p-5 space-y-4">
+            <h3 className="font-bold text-sm text-white">1. Select Recipient Lead</h3>
+            <select
+              value={selectedLeadId}
+              onChange={e => handleSelectLead(e.target.value)}
+              className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-sm text-white outline-none focus:border-[#10B981]"
+            >
+              <option value="">-- Choose a Lead --</option>
+              {leads.map(l => (
+                <option key={l.id} value={l.id}>
+                  {l.name} ({l.business}) - {l.phone}
+                </option>
+              ))}
+            </select>
+
+            {selectedLead && (
+              <div className="p-3 bg-[#1A1A2E] rounded-xl text-xs space-y-1 text-gray-300">
+                <p><strong className="text-white">Business:</strong> {selectedLead.business}</p>
+                <p><strong className="text-white">City:</strong> {selectedLead.city}</p>
+                <p><strong className="text-white">Phone:</strong> +91 {selectedLead.phone}</p>
+                <p><strong className="text-white">Stage:</strong> {selectedLead.stage}</p>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-[#0F0F1A] border border-[#1E1E35] rounded-2xl p-5 space-y-4">
+            <h3 className="font-bold text-sm text-white">2. Select Message Template</h3>
+            {loading ? (
+              <p className="text-xs text-text">Loading templates...</p>
+            ) : (
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                {templates.map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => handleSelectTemplate(t)}
+                    className={`w-full text-left p-3 rounded-xl text-xs transition-all border ${
+                      selectedTemplateId === t.id
+                        ? 'bg-[#10B981]/15 border-[#10B981] text-white font-semibold'
+                        : 'bg-[#1A1A2E] border-[#2A2A45] text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <div className="font-bold text-white mb-1">{t.name}</div>
+                    <div className="line-clamp-2 text-[11px] opacity-80">{t.body}</div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Message Editor & Live Preview */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="bg-[#0F0F1A] border border-[#1E1E35] rounded-2xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-sm text-white">3. Compose & Preview</h3>
+              <span className="text-xs text-text">{messageText.length} characters</span>
+            </div>
+
+            <textarea
+              rows={6}
+              value={messageText}
+              onChange={e => setMessageText(e.target.value)}
+              placeholder="Your personalized WhatsApp message..."
+              className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-4 text-sm text-white outline-none focus:border-[#10B981] resize-none"
+            />
+
+            {/* WhatsApp Styled Preview Bubble */}
+            <div className="p-4 bg-[#051108] border border-[#10B981]/20 rounded-2xl">
+              <div className="text-[10px] uppercase font-bold text-gray-400 mb-2 flex items-center justify-between">
+                <span>WhatsApp Live Preview</span>
+                <span>To: {selectedLead ? `+91 ${selectedLead.phone}` : 'Select a lead'}</span>
+              </div>
+              <div className="max-w-md bg-[#005C4B] text-white p-3.5 rounded-2xl rounded-tr-none text-xs leading-relaxed shadow">
+                {messageText || 'Type your message above...'}
+                <div className="text-[9px] text-emerald-200 text-right mt-1.5 flex items-center justify-end gap-1">
+                  <span>Just now</span>
+                  <span>✓✓</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-2 bg-[#1A1A2E] hover:bg-[#252542] border border-[#2A2A45] px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-300 transition-all"
+              >
+                {copied ? <Check size={14} className="text-[#10B981]" /> : <Copy size={14} />}
+                {copied ? 'Copied!' : 'Copy Text'}
+              </button>
+              <button
+                onClick={handleSend}
+                disabled={!selectedLead}
+                className="flex items-center gap-2 bg-[#10B981] hover:bg-[#10B981]/90 disabled:opacity-50 text-white font-bold text-xs px-6 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-500/20"
+              >
+                <Send size={14} /> Send via WhatsApp
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Add Template Modal */}
+      {showAddTemplate && (
+        <div className="fixed inset-0 bg-black/85 flex items-center justify-center z-[150] p-6">
+          <div className="bg-[#0B0B18] border border-[#1E1E35] rounded-3xl max-w-lg w-full p-8 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold font-poppins">New WhatsApp Template</h3>
+              <button onClick={() => setShowAddTemplate(false)} className="p-2 hover:bg-[#1E1E35] rounded-xl">
+                <X size={20} />
+              </button>
+            </div>
+            <p className="text-xs text-text">
+              Use <code className="text-[#10B981]">{"{name}"}</code>, <code className="text-[#10B981]">{"{business}"}</code>, and <code className="text-[#10B981]">{"{city}"}</code> as variable placeholders.
+            </p>
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block text-text">Template Name</label>
+              <input
+                value={newTemplate.name}
+                onChange={e => setNewTemplate(p => ({ ...p, name: e.target.value }))}
+                placeholder="Ex: Diwali Growth Offer"
+                className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block text-text">Message Body</label>
+              <textarea
+                rows={5}
+                value={newTemplate.body}
+                onChange={e => setNewTemplate(p => ({ ...p, body: e.target.value }))}
+                placeholder="Hi {name}! We saw {business} in {city} and..."
+                className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-sm resize-none"
+              />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setShowAddTemplate(false)}
+                className="flex-1 py-3 text-xs font-bold text-text hover:text-white rounded-xl border border-[#1E1E35]"
+              >
+                Cancel
+              </button>
+              <Btn
+                disabled={savingTemplate || !newTemplate.name || !newTemplate.body}
+                onClick={handleCreateTemplate}
+                className="flex-1 py-3"
+              >
+                {savingTemplate ? 'Saving...' : 'Save Template'}
+              </Btn>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ─── AI STUDIO VIEW ─── */
+
+const AIStudioView = ({ leads = [] }: { leads: Lead[] }) => {
+  const [selectedLeadId, setSelectedLeadId] = useState('');
+  const [type, setType] = useState<'meta_ads' | 'reels_script' | 'whatsapp_followup' | 'growth_pitch'>('meta_ads');
+  const [businessName, setBusinessName] = useState('');
+  const [industry, setIndustry] = useState('Restaurant/Food');
+  const [city, setCity] = useState('Mumbai');
+  const [customGoal, setCustomGoal] = useState('');
+  const [tone, setTone] = useState('High Energy');
+  const [generating, setGenerating] = useState(false);
+  const [result, setResult] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const selectedLead = leads.find(l => l.id === selectedLeadId);
+
+  const handleSelectLead = (id: string) => {
+    setSelectedLeadId(id);
+    const l = leads.find(x => x.id === id);
+    if (l) {
+      setBusinessName(l.business || l.name);
+      if (l.industry) setIndustry(l.industry);
+      if (l.city) setCity(l.city);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!businessName.trim()) {
+      alert('Please enter a business or brand name');
+      return;
+    }
+    setGenerating(true);
+    setResult('');
+
+    let prompt = '';
+    const systemInstruction = 'You are an elite performance marketing copywriter at SocialSetu, generating punchy, actionable marketing content tailored for the Indian business ecosystem. Never include unnecessary pleasantries; output structured, ready-to-use copy.';
+
+    if (type === 'meta_ads') {
+      prompt = `Generate high-converting Meta (Facebook & Instagram) ad creatives for "${businessName}" in ${city} (Industry: ${industry}).
+Goal/Offer: ${customGoal || 'Generate qualified customer inquiries and footfalls'}.
+Tone: ${tone}.
+Format:
+1. 3 High-CTR Hook Lines (tailored for Indian audiences)
+2. Primary Text Body (Problem -> Solution -> Value Proposition)
+3. Strong Urgency-Driven Call-To-Action (CTA)
+4. Recommended Meta Ads Manager Audience Targeting (interests, behaviors, age demographics).`;
+    } else if (type === 'reels_script') {
+      prompt = `Write a viral 30-45 second Instagram Reel / YouTube Short script for "${businessName}" (${industry} in ${city}).
+Topic: ${customGoal || 'Why customers choose us over competitors'}.
+Tone: ${tone}.
+Format:
+- [0-3s Visual + Spoken Hook] (Must stop the scroll)
+- [4-15s Problem & Agitation]
+- [16-30s The Solution & Demonstration]
+- [31-40s Direct CTA to DM or click bio link].`;
+    } else if (type === 'whatsapp_followup') {
+      prompt = `Write a 2-part WhatsApp conversion follow-up sequence for "${businessName}" (${industry} in ${city}).
+Context: ${customGoal || 'Lead expressed interest in digital marketing but has not closed yet'}.
+Tone: ${tone} (warm Indian business tone, respectful and direct).
+Include WhatsApp emojis and bullet points. Keep each message under 80 words.`;
+    } else {
+      prompt = `Draft a customized 90-Day Digital Growth & Paid Ads Strategy Proposal Pitch for "${businessName}" in ${city} (Industry: ${industry}).
+Current Goal: ${customGoal || 'Scale revenue and lower customer acquisition costs'}.
+Outline:
+- Current industry bottleneck in ${city}
+- The SocialSetu 3-Phase Scaling Strategy (Validation -> Rapid Scale -> Retention)
+- Recommended Monthly Ad Budget & Expected ROI Multiple
+- Immediate Next Steps.`;
+    }
+
+    try {
+      const res = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, systemInstruction }),
+      });
+      const data = await res.json();
+      if (res.ok && data.text) {
+        setResult(data.text);
+      } else {
+        setResult(data.error || 'AI generation failed. Please check your Gemini configuration.');
+      }
+    } catch {
+      setResult('Failed to connect to AI engine. Please verify server connectivity.');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(result);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold font-poppins flex items-center gap-2">
+            <Bot className="text-[#FF6B35]" /> AI Marketing Studio
+          </h2>
+          <p className="text-sm text-text mt-1">
+            Generate high-converting Meta Ads, Viral Reel Scripts & WhatsApp pitches powered by Google Gemini.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Controls */}
+        <div className="bg-[#0F0F1A] border border-[#1E1E35] rounded-2xl p-6 space-y-4">
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block text-text">Content Type</label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { id: 'meta_ads', label: 'Meta Ad Copy' },
+                { id: 'reels_script', label: 'Reel Script' },
+                { id: 'whatsapp_followup', label: 'WhatsApp Drip' },
+                { id: 'growth_pitch', label: 'Growth Pitch' },
+              ].map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => setType(t.id as any)}
+                  className={`p-2.5 rounded-xl text-xs font-semibold transition-all border ${
+                    type === t.id
+                      ? 'bg-[#FF6B35]/20 border-[#FF6B35] text-white'
+                      : 'bg-[#1A1A2E] border-[#2A2A45] text-text hover:text-white'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block text-text">Target Lead (Optional)</label>
+            <select
+              value={selectedLeadId}
+              onChange={e => handleSelectLead(e.target.value)}
+              className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-xs text-white outline-none focus:border-[#FF6B35]"
+            >
+              <option value="">-- Manual Input / No Lead --</option>
+              {leads.map(l => (
+                <option key={l.id} value={l.id}>
+                  {l.name} - {l.business} ({l.city})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block text-text">Business / Brand Name</label>
+            <input
+              value={businessName}
+              onChange={e => setBusinessName(e.target.value)}
+              placeholder="Ex: Biryani House, Skyrise Realty"
+              className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-xs text-white outline-none focus:border-[#FF6B35]"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block text-text">Industry</label>
+              <select
+                value={industry}
+                onChange={e => setIndustry(e.target.value)}
+                className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-xs text-white outline-none"
+              >
+                {INDUSTRIES.map(i => <option key={i}>{i}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block text-text">City</label>
+              <input
+                value={city}
+                onChange={e => setCity(e.target.value)}
+                placeholder="Mumbai"
+                className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-xs text-white outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block text-text">Tone</label>
+            <select
+              value={tone}
+              onChange={e => setTone(e.target.value)}
+              className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-xs text-white outline-none"
+            >
+              <option>High Energy & Viral</option>
+              <option>Consultative & Professional</option>
+              <option>Direct & Urgency-Driven</option>
+              <option>Hinglish Conversational</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block text-text">Special Goal / Offer (Optional)</label>
+            <input
+              value={customGoal}
+              onChange={e => setCustomGoal(e.target.value)}
+              placeholder="Ex: Buy 1 Get 1 or Flat ₹500 off on first visit"
+              className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-xs text-white outline-none"
+            />
+          </div>
+
+          <Btn
+            disabled={generating}
+            onClick={handleGenerate}
+            className="w-full py-3.5"
+          >
+            {generating ? (
+              <span className="flex items-center gap-2">
+                <Loader2 size={16} className="animate-spin" /> Generating...
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <Sparkles size={16} /> Generate Copy with AI
+              </span>
+            )}
+          </Btn>
+        </div>
+
+        {/* Output Panel */}
+        <div className="lg:col-span-2 bg-[#0F0F1A] border border-[#1E1E35] rounded-2xl p-6 flex flex-col">
+          <div className="flex items-center justify-between pb-4 border-b border-[#1E1E35] mb-4">
+            <h3 className="font-bold text-sm text-white flex items-center gap-2">
+              <span>Generated Content</span>
+              {result && <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#10B981]/20 text-[#10B981] font-bold">Ready</span>}
+            </h3>
+            {result && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleCopy}
+                  className="flex items-center gap-1.5 bg-[#1A1A2E] hover:bg-[#252542] border border-[#2A2A45] text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-300 transition-all"
+                >
+                  {copied ? <Check size={12} className="text-[#10B981]" /> : <Copy size={12} />}
+                  {copied ? 'Copied' : 'Copy'}
+                </button>
+                {selectedLead && (
+                  <button
+                    onClick={() => openWhatsApp(selectedLead, result)}
+                    className="flex items-center gap-1.5 bg-[#10B981] hover:bg-[#10B981]/90 text-xs font-bold px-3 py-1.5 rounded-lg text-white transition-all"
+                  >
+                    <Send size={12} /> WhatsApp to Lead
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1 min-h-[350px] bg-[#080812] border border-[#1E1E35] rounded-xl p-5 overflow-y-auto">
+            {generating ? (
+              <div className="h-full flex flex-col items-center justify-center text-text space-y-3">
+                <Loader2 size={32} className="animate-spin text-[#FF6B35]" />
+                <p className="text-xs">Analyzing industry trends & crafting copy with Gemini...</p>
+              </div>
+            ) : result ? (
+              <div className="text-xs text-gray-200 leading-relaxed whitespace-pre-wrap font-sans">
+                {result}
+              </div>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-text space-y-2 opacity-60">
+                <Bot size={40} className="stroke-[1.5]" />
+                <p className="text-xs">Select options and click &quot;Generate Copy with AI&quot; to begin.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ─── ROI SIMULATOR VIEW (GROWTH MODULE) ─── */
+
+const ROISimulatorView = ({
+  onLaunchCampaign,
+}: {
+  onLaunchCampaign?: (draft: Partial<Campaign>) => void;
+}) => {
+  const [budget, setBudget] = useState(50000);
+  const [industry, setIndustry] = useState('Real Estate');
+  const [platform, setPlatform] = useState<'Meta' | 'Google' | 'LinkedIn' | 'YouTube'>('Meta');
+  const [avgTicket, setAvgTicket] = useState(30000);
+
+  const benchmarks: Record<string, { cpm: number; ctr: number; leadConv: number; closeRate: number }> = {
+    'Real Estate': { cpm: 180, ctr: 1.4, leadConv: 5.5, closeRate: 4 },
+    'Restaurant/Food': { cpm: 90, ctr: 2.2, leadConv: 8.0, closeRate: 15 },
+    'D2C/eCommerce': { cpm: 120, ctr: 1.8, leadConv: 6.0, closeRate: 8 },
+    'IT/SaaS': { cpm: 250, ctr: 1.1, leadConv: 4.0, closeRate: 6 },
+    'Healthcare': { cpm: 160, ctr: 1.6, leadConv: 7.0, closeRate: 12 },
+    'Other': { cpm: 140, ctr: 1.5, leadConv: 5.0, closeRate: 7 },
+  };
+
+  const bm = benchmarks[industry] || benchmarks['Other'];
+  const platformMultiplier = platform === 'Google' ? 1.3 : platform === 'LinkedIn' ? 2.2 : platform === 'YouTube' ? 0.9 : 1.0;
+  const effectiveCpm = bm.cpm * platformMultiplier;
+
+  const impressions = Math.round((budget / effectiveCpm) * 1000);
+  const clicks = Math.round(impressions * (bm.ctr / 100));
+  const cpc = clicks > 0 ? (budget / clicks).toFixed(1) : '0';
+  const leads = Math.max(1, Math.round(clicks * (bm.leadConv / 100)));
+  const cpl = Math.round(budget / leads);
+  const deals = Math.max(1, Math.round(leads * (bm.closeRate / 100)));
+  const projectedRevenue = deals * avgTicket;
+  const roas = budget > 0 ? (projectedRevenue / budget).toFixed(2) : '0';
+  const profit = projectedRevenue - budget;
+
+  const handleApplyToCampaign = () => {
+    if (onLaunchCampaign) {
+      onLaunchCampaign({
+        name: `${industry} Growth Sprint (${platform})`,
+        platform,
+        budget,
+        notes: `Simulated target: ~${leads} leads at ₹${cpl} CPL, targeting ₹${(projectedRevenue / 1000).toFixed(0)}k pipeline.`,
+        status: 'Active',
+      });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold font-poppins flex items-center gap-2">
+            <TrendingUp className="text-[#10B981]" /> Ad Spend & ROI Simulator
+          </h2>
+          <p className="text-sm text-text mt-1">
+            Model performance marketing campaigns with Indian market CPM, CPL & ROAS benchmarks.
+          </p>
+        </div>
+        <Btn onClick={handleApplyToCampaign}>
+          <Rocket size={16} /> Launch as Campaign
+        </Btn>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Simulation Controls */}
+        <div className="bg-[#0F0F1A] border border-[#1E1E35] rounded-2xl p-6 space-y-5">
+          <h3 className="font-bold text-sm text-white">Campaign Parameters</h3>
+
+          <div>
+            <div className="flex justify-between text-xs mb-2">
+              <span className="text-text uppercase font-bold text-[10px]">Monthly Ad Budget</span>
+              <span className="font-mono font-bold text-[#FF6B35]">₹{budget.toLocaleString('en-IN')}</span>
+            </div>
+            <input
+              type="range"
+              min={10000}
+              max={500000}
+              step={5000}
+              value={budget}
+              onChange={e => setBudget(Number(e.target.value))}
+              className="w-full accent-[#FF6B35]"
+            />
+            <div className="flex justify-between text-[10px] text-text mt-1">
+              <span>₹10k</span>
+              <span>₹2.5L</span>
+              <span>₹5L</span>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block text-text">Industry</label>
+            <select
+              value={industry}
+              onChange={e => setIndustry(e.target.value)}
+              className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-xs text-white outline-none"
+            >
+              {Object.keys(benchmarks).map(ind => <option key={ind}>{ind}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block text-text">Platform</label>
+            <div className="grid grid-cols-2 gap-2">
+              {['Meta', 'Google', 'YouTube', 'LinkedIn'].map(p => (
+                <button
+                  key={p}
+                  onClick={() => setPlatform(p as any)}
+                  className={`p-2.5 rounded-xl text-xs font-semibold transition-all border ${
+                    platform === p
+                      ? 'bg-[#10B981]/20 border-[#10B981] text-white'
+                      : 'bg-[#1A1A2E] border-[#2A2A45] text-text hover:text-white'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block text-text">Average Deal / Customer Value (₹)</label>
+            <input
+              type="number"
+              value={avgTicket}
+              onChange={e => setAvgTicket(Math.max(100, Number(e.target.value)))}
+              className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-3 text-xs text-white outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Results Panel */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Top Big Metrics */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-[#0F0F1A] border border-[#1E1E35] rounded-2xl p-5">
+              <p className="text-[10px] font-bold text-text uppercase tracking-widest mb-1">Projected Revenue</p>
+              <p className="text-2xl font-black font-mono text-[#10B981]">
+                ₹{(projectedRevenue / 1000).toFixed(0)}k
+              </p>
+              <p className="text-[10px] text-text mt-1">Est. {deals} closed deals</p>
+            </div>
+
+            <div className="bg-[#0F0F1A] border border-[#1E1E35] rounded-2xl p-5">
+              <p className="text-[10px] font-bold text-text uppercase tracking-widest mb-1">Projected ROAS</p>
+              <p className="text-2xl font-black font-mono text-[#FF6B35]">{roas}x</p>
+              <p className="text-[10px] text-text mt-1">Return on Ad Spend</p>
+            </div>
+
+            <div className="bg-[#0F0F1A] border border-[#1E1E35] rounded-2xl p-5">
+              <p className="text-[10px] font-bold text-text uppercase tracking-widest mb-1">Est. Leads</p>
+              <p className="text-2xl font-black font-mono text-white">{leads}</p>
+              <p className="text-[10px] text-text mt-1">₹{cpl} Cost Per Lead</p>
+            </div>
+
+            <div className="bg-[#0F0F1A] border border-[#1E1E35] rounded-2xl p-5">
+              <p className="text-[10px] font-bold text-text uppercase tracking-widest mb-1">Net Ad Profit</p>
+              <p className={`text-2xl font-black font-mono ${profit >= 0 ? 'text-[#10B981]' : 'text-red-400'}`}>
+                ₹{(profit / 1000).toFixed(0)}k
+              </p>
+              <p className="text-[10px] text-text mt-1">After ad budget</p>
+            </div>
+          </div>
+
+          {/* Funnel Breakdown Table */}
+          <div className="bg-[#0F0F1A] border border-[#1E1E35] rounded-2xl p-6">
+            <h3 className="font-bold text-sm text-white mb-4">Marketing Funnel Forecast</h3>
+            <div className="space-y-3">
+              {[
+                { stage: '1. Impressions & Reach', metric: `${(impressions / 1000).toFixed(1)}k Views`, cost: `CPM ₹${effectiveCpm.toFixed(0)}`, pct: '100%' },
+                { stage: '2. High-Intent Clicks', metric: `${clicks} Clicks`, cost: `CPC ₹${cpc}`, pct: `${bm.ctr}% CTR` },
+                { stage: '3. Qualified Inquiries / Leads', metric: `${leads} Leads`, cost: `CPL ₹${cpl}`, pct: `${bm.leadConv}% Conv.` },
+                { stage: '4. Final Paying Customers', metric: `${deals} Closed Deals`, cost: `CAC ₹${Math.round(budget / deals)}`, pct: `${bm.closeRate}% Close` },
+              ].map((row, i) => (
+                <div key={i} className="flex items-center justify-between p-3.5 bg-[#1A1A2E] rounded-xl text-xs">
+                  <div>
+                    <span className="font-bold text-white block">{row.stage}</span>
+                    <span className="text-[10px] text-text">{row.cost}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono font-bold text-white block">{row.metric}</span>
+                    <span className="text-[10px] text-[#10B981] font-bold">{row.pct}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ─── INVOICE GENERATION MODAL ─── */
+
+const InvoiceModal = ({ lead, onClose }: { lead: Lead; onClose: () => void }) => {
+  const [items, setItems] = useState([
+    { description: 'Social Media Management & Creative Production (Monthly)', amount: Math.max(15000, lead.value ? Math.round(lead.value * 0.6) : 25000) },
+    { description: 'Performance Ads Setup & Optimization (Meta & Google)', amount: Math.max(10000, lead.value ? Math.round(lead.value * 0.4) : 15000) },
+  ]);
+  const [downloading, setDownloading] = useState(false);
+
+  const subtotal = items.reduce((s, i) => s + (Number(i.amount) || 0), 0);
+  const gst = Math.round(subtotal * 0.18);
+  const total = subtotal + gst;
+
+  const handleAddItem = () => {
+    setItems(p => [...p, { description: 'Custom Growth Consulting & Strategy', amount: 10000 }]);
+  };
+
+  const handleRemoveItem = (index: number) => {
+    setItems(p => p.filter((_, i) => i !== index));
+  };
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const res = await fetch(`/api/leads/${lead.id}/invoice`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items }),
+      });
+      if (!res.ok) throw new Error('Invoice generation failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Invoice-${lead.name.replace(/[^a-z0-9]/gi, '-')}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      onClose();
+    } catch {
+      alert('Failed to generate invoice. Please try again.');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/85 flex items-center justify-center z-[150] p-6">
+      <div className="bg-[#0B0B18] border border-[#1E1E35] rounded-3xl max-w-xl w-full p-8 space-y-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-xl font-bold font-poppins flex items-center gap-2">
+              <FileText className="text-[#FF6B35]" /> Generate Official Invoice
+            </h3>
+            <p className="text-xs text-text mt-0.5">Billed to: {lead.name} ({lead.business})</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-[#1E1E35] rounded-xl"><X size={20} /></button>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-bold text-text uppercase tracking-widest">Line Items</span>
+            <button onClick={handleAddItem} className="text-xs text-[#FF6B35] font-bold hover:underline">+ Add Item</button>
+          </div>
+
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+            {items.map((item, idx) => (
+              <div key={idx} className="flex gap-2 items-center">
+                <input
+                  value={item.description}
+                  onChange={e => {
+                    const desc = e.target.value;
+                    setItems(p => p.map((it, i) => i === idx ? { ...it, description: desc } : it));
+                  }}
+                  className="flex-1 bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-2.5 text-xs text-white outline-none"
+                />
+                <input
+                  type="number"
+                  value={item.amount}
+                  onChange={e => {
+                    const amt = Number(e.target.value);
+                    setItems(p => p.map((it, i) => i === idx ? { ...it, amount: amt } : it));
+                  }}
+                  className="w-24 bg-[#1A1A2E] border border-[#2A2A45] rounded-xl p-2.5 text-xs text-white outline-none font-mono"
+                />
+                {items.length > 1 && (
+                  <button onClick={() => handleRemoveItem(idx)} className="text-red-400 p-1 hover:text-white">
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Totals Summary */}
+        <div className="p-4 bg-[#1A1A2E] rounded-xl space-y-1.5 text-xs">
+          <div className="flex justify-between text-text">
+            <span>Subtotal:</span>
+            <span className="font-mono text-white">Rs. {subtotal.toLocaleString('en-IN')}</span>
+          </div>
+          <div className="flex justify-between text-text">
+            <span>GST (18%):</span>
+            <span className="font-mono text-white">Rs. {gst.toLocaleString('en-IN')}</span>
+          </div>
+          <div className="flex justify-between text-sm font-bold text-white pt-2 border-t border-[#2A2A45]">
+            <span>Total Payable:</span>
+            <span className="font-mono text-[#10B981]">Rs. {total.toLocaleString('en-IN')}</span>
+          </div>
+        </div>
+
+        <div className="flex gap-3 pt-2">
+          <button onClick={onClose} className="flex-1 py-3 text-xs font-bold text-text hover:text-white rounded-xl border border-[#1E1E35]">
+            Cancel
+          </button>
+          <Btn disabled={downloading} onClick={handleDownload} className="flex-1 py-3">
+            {downloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+            {downloading ? 'Generating PDF...' : 'Download PDF Invoice'}
+          </Btn>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 /* ─── BRAND BHAARAT CRM SHELL ─── */
 
 function BrandBhaaratCRM() {
@@ -648,7 +1512,7 @@ function BrandBhaaratCRM() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
-  const [activeView, setActiveView] = useState<'dashboard'|'leads'|'pipeline'|'reminders'|'campaigns'|'whatsapp'|'ai'|'audits'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard'|'leads'|'pipeline'|'reminders'|'campaigns'|'whatsapp'|'ai'|'audits'|'simulator'>('dashboard');
   const [search, setSearch] = useState('');
   const [filterStage, setFilterStage] = useState('All');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -658,6 +1522,8 @@ function BrandBhaaratCRM() {
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
+  const [invoiceLead, setInvoiceLead] = useState<Lead | null>(null);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const { toast, showToast, hideToast } = useToast();
   const mounted = useSyncExternalStore(
     () => () => {},
@@ -861,6 +1727,7 @@ function BrandBhaaratCRM() {
               { key: 'campaigns', label: 'Campaigns', icon: Activity },
               { key: 'whatsapp', label: 'WhatsApp', icon: MessageSquare },
               { key: 'ai', label: 'AI Studio', icon: Bot },
+              { key: 'simulator', label: 'ROI Simulator', icon: TrendingUp },
               { key: 'audits', label: 'Audits', icon: BarChart2 },
             ].map(({ key, label, icon: Icon }) => (
               <button
@@ -957,10 +1824,12 @@ function BrandBhaaratCRM() {
                           <td className="py-3"><span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: `${STAGE_COLORS[l.stage] || '#666'}20`, color: STAGE_COLORS[l.stage] || '#666' }}>{l.stage}</span></td>
                           <td className="py-3 text-right font-mono">₹{(l.value / 1000).toFixed(0)}k</td>
                           <td className="py-3"><ScoreRing score={l.aiScore} /></td>
-                          <td className="py-3 text-center">
-                            <button onClick={() => { setEditingLead(l); setShowLeadModal(true); }} className="text-[#666] hover:text-white mr-2">Edit</button>
-                            <button onClick={() => handleDeleteLead(l.id)} className="text-[#EF4444] hover:text-white mr-2">Del</button>
-                            <button onClick={() => { window.location.href = `/audit/new?leadId=${l.id}&name=${encodeURIComponent(l.name)}&industry=${encodeURIComponent(l.industry)}`; }} className="text-[#8B5CF6] hover:text-white">Audit</button>
+                          <td className="py-3 text-center whitespace-nowrap">
+                            <button onClick={() => { setEditingLead(l); setShowLeadModal(true); }} className="text-[#666] hover:text-white mr-2 text-xs">Edit</button>
+                            <button onClick={() => { setInvoiceLead(l); setShowInvoiceModal(true); }} className="text-[#10B981] hover:text-white mr-2 text-xs font-semibold" title="Generate Invoice">Inv</button>
+                            <button onClick={() => openWhatsApp(l, `Hi ${l.name}! Following up on ${l.business} from SocialSetu.`)} className="text-[#25D366] hover:text-white mr-2 text-xs font-semibold" title="Send WhatsApp">WA</button>
+                            <button onClick={() => { window.location.href = `/audit/new?leadId=${l.id}&name=${encodeURIComponent(l.name)}&industry=${encodeURIComponent(l.industry)}`; }} className="text-[#8B5CF6] hover:text-white mr-2 text-xs">Audit</button>
+                            <button onClick={() => handleDeleteLead(l.id)} className="text-[#EF4444] hover:text-white text-xs">Del</button>
                           </td>
                         </tr>
                       ))}
@@ -1029,8 +1898,17 @@ function BrandBhaaratCRM() {
 
             {activeView === 'audits' && <AuditsListView />}
 
-            {activeView === 'whatsapp' && <div className="text-[#666] py-20 text-center">WhatsApp integration coming soon...</div>}
-            {activeView === 'ai' && <div className="text-[#666] py-20 text-center">AI Studio coming soon...</div>}
+            {activeView === 'whatsapp' && <WhatsAppOutreachView leads={leads} />}
+            {activeView === 'ai' && <AIStudioView leads={leads} />}
+            {activeView === 'simulator' && (
+              <ROISimulatorView
+                onLaunchCampaign={(_draft) => {
+                  setEditingCampaign(null);
+                  setShowCampaignModal(true);
+                  setActiveView('campaigns');
+                }}
+              />
+            )}
           </main>
         </div>
       </div>
@@ -1091,6 +1969,17 @@ function BrandBhaaratCRM() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* InvoiceModal */}
+      {showInvoiceModal && invoiceLead && (
+        <InvoiceModal
+          lead={invoiceLead}
+          onClose={() => {
+            setShowInvoiceModal(false);
+            setInvoiceLead(null);
+          }}
+        />
       )}
 
       {/* Toast */}

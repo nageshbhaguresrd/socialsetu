@@ -1,81 +1,77 @@
-import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 
-// const cookieStore = cookies()
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const supabase = await createClient()
+
+    const { data, error } = await supabase
+      .from('campaigns')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error || !data) {
+      return NextResponse.json({ error: 'Campaign not found' }, { status: 404 })
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch campaign' }, { status: 500 })
+  }
+}
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const resolvedParams = await params;
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          const cookie = cookieStore.get(name)
-          return cookie ? cookie.value : null
-        },
-        set(name: string, value: string, options: any) {
-          cookieStore.set(name, value, options)
-        },
-        remove(name: string, options: any) {
-          cookieStore.set(name, '', options)
-        },
-      },
+  try {
+    const { id } = await params
+    const supabase = await createClient()
+
+    const body = await request.json()
+    const updateData: Record<string, any> = { ...body, updated_at: new Date().toISOString() }
+
+    const { data, error } = await supabase
+      .from('campaigns')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
-  )
 
-  const body = await request.json()
-  const updateData: any = { updated_at: new Date().toISOString() }
-  
-  // Allow updating any field
-  Object.keys(body).forEach(key => {
-    updateData[key as keyof any] = body[key]
-  })
-
-  const { data, error } = await supabase
-    .from('campaigns')
-    .update(updateData)
-    .eq('id', resolvedParams.id)
-    .select()
-    .single()
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(data)
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to update campaign' }, { status: 500 })
   }
-
-  return NextResponse.json(data)
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const resolvedParams = await params;
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          const cookie = cookieStore.get(name)
-          return cookie ? cookie.value : null
-        },
-      },
+  try {
+    const { id } = await params
+    const supabase = await createClient()
+
+    const { error } = await supabase
+      .from('campaigns')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
-  )
 
-  const { error } = await supabase
-    .from('campaigns')
-    .delete()
-    .eq('id', resolvedParams.id)
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to delete campaign' }, { status: 500 })
   }
-
-  return NextResponse.json({ success: true })
 }
