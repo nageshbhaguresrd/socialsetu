@@ -26,19 +26,32 @@ export async function POST(req: Request) {
         const { prompt, systemInstruction } = result.data;
 
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
-        const res = await ai.models.generateContent({
-            model: "gemini-2.0-flash",
-            contents: prompt,
-            config: {
-                systemInstruction: systemInstruction
-            }
-        });
-
-        const text = res.text;
+        
+        let text = '';
+        try {
+            const res = await ai.models.generateContent({
+                model: "gemini-3.8-flash",
+                contents: prompt,
+                config: {
+                    systemInstruction: systemInstruction
+                }
+            });
+            text = res.text || '';
+        } catch (modelErr) {
+            console.warn("Primary model gemini-3.8-flash failed, falling back to gemini-flash-latest:", modelErr);
+            const fallbackRes = await ai.models.generateContent({
+                model: "gemini-flash-latest",
+                contents: prompt,
+                config: {
+                    systemInstruction: systemInstruction
+                }
+            });
+            text = fallbackRes.text || '';
+        }
 
         return NextResponse.json({ text });
-    } catch (error) {
+    } catch (error: any) {
         console.error("AI Error:", error);
-        return NextResponse.json({ error: "AI generation failed" }, { status: 500 });
+        return NextResponse.json({ error: error?.message || "AI generation failed" }, { status: 500 });
     }
 }
