@@ -17,7 +17,12 @@ export async function sendLeadNotification({
   email?: string;
   source?: string;
 }) {
-  const resend = new Resend(process.env.RESEND_API_KEY!);
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY is not configured; skipping email notification.');
+    return;
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
     await resend.emails.send({

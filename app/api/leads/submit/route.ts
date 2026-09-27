@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import { sendLeadNotification } from '@/lib/email/resend';
 import { contactSubmissionSchema } from '@/lib/validation/schemas';
@@ -6,7 +6,7 @@ import { logActivity } from '@/lib/supabase/logActivity';
 
 export async function POST(req: Request) {
   try {
-    const supabase = await createClient();
+    const supabase = getSupabaseAdmin();
     const body = await req.json();
 
     const result = contactSubmissionSchema.safeParse(body);

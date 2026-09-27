@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getSupabaseAdmin } from '@/lib/supabase/admin'
 
 interface AuditRequestBody {
   clientName: string
@@ -60,7 +61,7 @@ function logAudit(message: string, auditId?: string, data?: unknown) {
  * This function is now awaited, not fire-and-forget.
  */
 async function processAudit(auditId: string, body: AuditRequestBody): Promise<void> {
-  const supabase = await createClient()
+  const supabase = getSupabaseAdmin()
   
   logAudit('Started processing', auditId)
   
@@ -92,7 +93,7 @@ async function processAudit(auditId: string, body: AuditRequestBody): Promise<vo
  * Actual audit processing logic.
  */
 async function doProcessAudit(auditId: string, body: AuditRequestBody): Promise<void> {
-  const supabase = await createClient()
+  const supabase = getSupabaseAdmin()
   
   try {
     // Import data fetchers
@@ -193,9 +194,7 @@ async function doProcessAudit(auditId: string, body: AuditRequestBody): Promise<
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const supabase = getSupabaseAdmin();
 
     const body: AuditRequestBody = await request.json()
 

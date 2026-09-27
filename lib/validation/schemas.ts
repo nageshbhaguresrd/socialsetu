@@ -27,7 +27,7 @@ export const leadSchema = z.object({
 
 export const contactSubmissionSchema = z.object({
   name: z.string().min(2, "Name required"),
-  source: z.string(),
+  source: z.string().optional().default('contact_form'),
   phone: z
     .string()
     .optional()

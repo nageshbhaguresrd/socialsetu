@@ -125,14 +125,33 @@ ALTER TABLE audits ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow authenticated users to select leads" 
   ON leads FOR SELECT TO authenticated USING (true);
 
-CREATE POLICY "Allow authenticated users to insert leads" 
-  ON leads FOR INSERT TO authenticated WITH CHECK (true);
+-- Allow both public form submissions (anon) and authenticated users to insert leads
+CREATE POLICY "Allow insert on leads" 
+  ON leads FOR INSERT WITH CHECK (true);
 
 CREATE POLICY "Allow authenticated users to update leads" 
   ON leads FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
 
 CREATE POLICY "Allow authenticated users to delete leads" 
   ON leads FOR DELETE TO authenticated USING (true);
+
+-- Policies for contact submissions
+ALTER TABLE contact_submissions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow anyone to insert contact_submissions"
+  ON contact_submissions FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated users to select contact_submissions"
+  ON contact_submissions FOR SELECT TO authenticated USING (true);
+
+-- Policies for lead activities
+ALTER TABLE lead_activities ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow anyone to insert lead_activities"
+  ON lead_activities FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated users to select lead_activities"
+  ON lead_activities FOR SELECT TO authenticated USING (true);
 
 -- Policies for audits
 -- SELECT is already public (Tier 1 Feature 2)
