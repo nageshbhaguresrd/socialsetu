@@ -26,7 +26,28 @@ export async function GET() {
     .order('name')
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.warn('wa_templates table query error (fallback applied):', error.message);
+    const fallbackTemplates = [
+      {
+        id: 'default-1',
+        name: 'Initial Follow-up',
+        body: 'Hi {name}! 👋 I saw your interest in digital marketing for {business}. We help brands in {city} grow with Meta & Google Ads. Can we schedule a quick call? 🚀',
+        variables: ['name', 'business', 'city'],
+      },
+      {
+        id: 'default-2',
+        name: 'Audit Offer',
+        body: "Hi {name}, we would love to do a FREE audit of {business}'s current digital presence. No cost, no commitment. Interested?",
+        variables: ['name', 'business'],
+      },
+      {
+        id: 'default-3',
+        name: 'Proposal Follow-up',
+        body: 'Hi {name}, following up on the proposal we shared for {business}. Any questions I can answer? Happy to jump on a quick call!',
+        variables: ['name', 'business'],
+      },
+    ];
+    return NextResponse.json(fallbackTemplates);
   }
   return NextResponse.json(data)
 }
