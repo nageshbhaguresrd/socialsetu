@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/admin'
+import { sendTelegramAuditAlert } from '@/lib/notifications/telegram'
 
 interface AuditRequestBody {
   clientName: string
@@ -185,7 +186,13 @@ async function doProcessAudit(auditId: string, body: AuditRequestBody): Promise<
     }
     
     logAudit('Audit completed successfully', auditId)
-    
+
+    sendTelegramAuditAlert({
+      clientName: body.clientName,
+      auditId,
+      overallScore: report?.overallScore,
+      platforms: body.platforms,
+    }).catch(console.error)
   } catch (error) {
     // Re-throw to be caught by processAudit wrapper
     throw error

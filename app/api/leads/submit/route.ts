@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import { sendLeadNotification } from '@/lib/email/resend';
+import { sendTelegramLeadAlert } from '@/lib/notifications/telegram';
 import { contactSubmissionSchema } from '@/lib/validation/schemas';
 import { logActivity } from '@/lib/supabase/logActivity';
 
@@ -104,6 +105,18 @@ export async function POST(req: Request) {
     }
 
     sendLeadNotification(body).catch(console.error);
+
+    sendTelegramLeadAlert({
+      name,
+      business: industry || 'Unknown',
+      phone,
+      email,
+      city,
+      industry,
+      budget,
+      score: calculateLeadScore(budget || '', industry || '', source || ''),
+      source: source === 'audit_form' ? 'Free Audit Form' : 'Website Contact',
+    }).catch(console.error);
 
     return NextResponse.json({ success: true });
   } catch (error) {

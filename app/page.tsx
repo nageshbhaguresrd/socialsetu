@@ -796,7 +796,7 @@ export default function SocialSetuPage() {
             
             <div className="space-y-8">
               {[
-                { label: 'Direct WhatsApp', val: '+91 9876543210', icon: <Phone /> },
+                { label: 'Direct WhatsApp', val: process.env.NEXT_PUBLIC_AGENCY_PHONE ? (process.env.NEXT_PUBLIC_AGENCY_PHONE.startsWith('+') ? process.env.NEXT_PUBLIC_AGENCY_PHONE : '+' + process.env.NEXT_PUBLIC_AGENCY_PHONE) : '+91 9876543210', icon: <Phone /> },
                 { label: 'Work Email', val: 'hello@socialsetu.com', icon: <Mail /> },
                 { label: 'Base Location', val: '100% Remote — Serving Pan-India', icon: <MapPin /> }
               ].map((info, i) => (
