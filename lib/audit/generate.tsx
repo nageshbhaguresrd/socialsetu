@@ -498,7 +498,7 @@ export async function generateAuditPDF(data: AuditPDFData): Promise<Buffer> {
 
         {/* Footer */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>SocialSetu Digital - hello@socialsetu.com - {process.env.NEXT_PUBLIC_AGENCY_PHONE ? (process.env.NEXT_PUBLIC_AGENCY_PHONE.startsWith('+') ? process.env.NEXT_PUBLIC_AGENCY_PHONE : '+' + process.env.NEXT_PUBLIC_AGENCY_PHONE) : '+91 9876543210'}</Text>
+          <Text style={styles.footerText}>SocialSetu Digital - hello@socialsetu.com - {process.env.NEXT_PUBLIC_AGENCY_PHONE ? (process.env.NEXT_PUBLIC_AGENCY_PHONE.startsWith('+') ? process.env.NEXT_PUBLIC_AGENCY_PHONE : '+' + process.env.NEXT_PUBLIC_AGENCY_PHONE) : '+91 7276119511'}</Text>
           <Text style={styles.footerText}>Confidential - For client use only</Text>
         </View>
       </Page>

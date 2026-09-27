@@ -43,7 +43,7 @@ export async function POST(
       items: items as { description: string; amount: number }[],
       gstNumber: '27AAKCS1234Q1Z5',
       agencyName: 'SocialSetu Digital' as const,
-      agencyPhone: '+91 9876543210' as const,
+      agencyPhone: (process.env.NEXT_PUBLIC_AGENCY_PHONE ? (process.env.NEXT_PUBLIC_AGENCY_PHONE.startsWith('+') ? process.env.NEXT_PUBLIC_AGENCY_PHONE : '+91 ' + process.env.NEXT_PUBLIC_AGENCY_PHONE.replace(/^91/, '')) : '+91 7276119511'),
       agencyEmail: 'hello@socialsetu.com' as const,
     };
 

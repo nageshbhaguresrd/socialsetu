@@ -168,7 +168,7 @@ export async function generateInvoice(data: InvoiceData): Promise<Buffer> {
             <Text>{data.agencyName || 'SocialSetu Digital'}</Text>
           </View>
           <View style={{ textAlign: 'right' }}>
-            <Text>{data.agencyPhone || process.env.NEXT_PUBLIC_AGENCY_PHONE || '+91 9876543210'}</Text>
+            <Text>{data.agencyPhone || process.env.NEXT_PUBLIC_AGENCY_PHONE || '+91 7276119511'}</Text>
             <Text>{data.agencyEmail || 'hello@socialsetu.com'}</Text>
             {data.gstNumber && <Text>GST: {data.gstNumber}</Text>}
           </View>
