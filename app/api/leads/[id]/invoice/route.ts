@@ -55,7 +55,7 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to generate invoice' }, { status: 500 });
     }
 
-    return new Response(pdfBuffer, {
+    return new Response(new Uint8Array(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="Invoice-${lead.name.replace(/[^a-z0-9]/gi, '-')}-${invoiceNum}.pdf"`,

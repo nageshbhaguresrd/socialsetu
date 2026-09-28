@@ -1,4 +1,4 @@
-﻿export async function sendTelegramMessage(text: string) {
+export async function sendTelegramMessage(text: string) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -75,7 +75,7 @@ export async function sendTelegramAuditAlert(audit: {
 
   const platformNames = audit.platforms
     ? Object.keys(audit.platforms)
-        .filter((k) => audit.platforms[k])
+        .filter((k) => audit.platforms && audit.platforms[k])
         .join(', ')
     : '';
 

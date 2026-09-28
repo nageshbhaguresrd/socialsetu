@@ -26,7 +26,7 @@ async function handlePdfDownload(id: string) {
 
   const filename = `SocialSetu-Audit-${data.client_name.replace(/[^a-z0-9]/gi, '-')}.pdf`
 
-  return new Response(pdfBuffer, {
+  return new Response(new Uint8Array(pdfBuffer), {
     headers: {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="${filename}"`,

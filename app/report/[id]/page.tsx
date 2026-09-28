@@ -192,9 +192,19 @@ export default function PublicReportPage({
           
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF6B35]/15 border border-[#FF6B35]/30 text-[#FF6B35] text-xs font-bold mb-4">
-                <Sparkles size={14} /> AI Performance Audit
-              </div>
+              {report.auditMode === 'live' ? (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold mb-4">
+                  <CheckCircle2 size={14} /> Live Telemetry Verified
+                </div>
+              ) : report.auditMode === 'hybrid' ? (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs font-bold mb-4">
+                  <Zap size={14} /> Hybrid Audit Intelligence (Live Data + AI Strategy)
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF6B35]/15 border border-[#FF6B35]/30 text-[#FF6B35] text-xs font-bold mb-4">
+                  <Sparkles size={14} /> AI Benchmark & Strategic Audit
+                </div>
+              )}
               <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
                 {audit.client_name}
               </h1>
@@ -275,6 +285,7 @@ export default function PublicReportPage({
               {Object.entries(report.platforms).map(([platform, data]: [string, any]) => {
                 const Icon = PLATFORM_ICONS[platform] || ShieldCheck;
                 const color = PLATFORM_COLORS[platform] || '#FF6B35';
+                const pMetrics = audit.raw_metrics?.find((rm: any) => rm.platform === platform)?.metrics;
                 return (
                   <div
                     key={platform}
@@ -289,7 +300,16 @@ export default function PublicReportPage({
                           <Icon size={20} />
                         </div>
                         <div>
-                          <h3 className="font-bold capitalize text-base">{platform}</h3>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold capitalize text-base">{platform}</h3>
+                            <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                              data.dataSource === 'live'
+                                ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                                : 'bg-purple-500/15 text-purple-300 border border-purple-500/30'
+                            }`}>
+                              {data.dataSource === 'live' ? 'Live Telemetry' : 'AI Benchmark'}
+                            </span>
+                          </div>
                           <p className="text-xs text-gray-500">Channel Evaluation</p>
                         </div>
                       </div>
@@ -302,6 +322,18 @@ export default function PublicReportPage({
                         </span>
                       </div>
                     </div>
+
+                    {/* Metric Pills */}
+                    {pMetrics && pMetrics.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {pMetrics.map((pm: any, pmi: number) => (
+                          <div key={pmi} className="bg-black/40 border border-[#1E1E35] rounded-xl p-2.5">
+                            <p className="text-[10px] text-gray-400 truncate">{pm.label}</p>
+                            <p className="text-sm font-bold text-white font-mono mt-0.5">{pm.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
                     {data.strengths?.length > 0 && (
                       <div>
@@ -353,6 +385,70 @@ export default function PublicReportPage({
                   </div>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* 30-Day Growth Roadmap */}
+        {report.thirtyDayActionPlan && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Sparkles size={18} className="text-[#FF6B35]" /> 30-Day Execution Roadmap
+              </h2>
+              <span className="text-xs text-gray-500">Phased Strategic Rollout</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { week: 'Week 1', title: 'Quick Wins & Foundations', items: report.thirtyDayActionPlan.week1, badge: 'Phase 1' },
+                { week: 'Week 2', title: 'Content Acceleration', items: report.thirtyDayActionPlan.week2, badge: 'Phase 2' },
+                { week: 'Week 3', title: 'Audience Optimization', items: report.thirtyDayActionPlan.week3, badge: 'Phase 3' },
+                { week: 'Week 4', title: 'Scaling & Conversions', items: report.thirtyDayActionPlan.week4, badge: 'Phase 4' },
+              ].map((col, cIdx) => (
+                <div key={cIdx} className="bg-[#0F0F1A] border border-[#1E1E35] rounded-3xl p-5 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-black uppercase tracking-wider text-[#FF6B35]">{col.week}</span>
+                      <span className="text-[10px] bg-white/5 text-gray-400 px-2 py-0.5 rounded-full font-mono">{col.badge}</span>
+                    </div>
+                    <h4 className="text-sm font-bold text-white mb-3">{col.title}</h4>
+                    <ul className="space-y-2 text-xs text-gray-300">
+                      {col.items?.map((item: string, iIdx: number) => (
+                        <li key={iIdx} className="flex items-start gap-2">
+                          <span className="text-[#FF6B35] font-bold shrink-0">{iIdx + 1}.</span>
+                          <span className="leading-relaxed">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Industry Benchmark Standards */}
+        {report.industryBenchmark && (
+          <div className="bg-[#0F0F1A] border border-[#1E1E35] rounded-3xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400">
+                Industry Benchmark Standards
+              </h3>
+              <span className="text-xs text-gray-500 font-medium">Calibrated for Indian regional market</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-black/30 border border-[#1E1E35] rounded-2xl p-4">
+                <p className="text-xs text-gray-400">Target Engagement Rate</p>
+                <p className="text-xl font-bold font-mono text-emerald-400 mt-1">{report.industryBenchmark.engagementRate}</p>
+              </div>
+              <div className="bg-black/30 border border-[#1E1E35] rounded-2xl p-4">
+                <p className="text-xs text-gray-400">Recommended Posting Cadence</p>
+                <p className="text-xl font-bold font-mono text-[#FF6B35] mt-1">{report.industryBenchmark.postingFrequency}</p>
+              </div>
+              <div className="bg-black/30 border border-[#1E1E35] rounded-2xl p-4">
+                <p className="text-xs text-gray-400">Target Follower Growth</p>
+                <p className="text-xl font-bold font-mono text-purple-400 mt-1">{report.industryBenchmark.followerGrowthRate}</p>
+              </div>
             </div>
           </div>
         )}

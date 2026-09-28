@@ -266,7 +266,15 @@ const CampaignsView = ({
     }));
   }, [campaigns]);
 
-  const [campaignForm, setCampaignForm] = useState({
+  const [campaignForm, setCampaignForm] = useState<{
+    name: string;
+    client: string;
+    platform: string;
+    budget: number;
+    start_date: string;
+    status: Campaign['status'];
+    notes: string;
+  }>({
     name: '', client: '', platform: 'Meta',
     budget: 0, start_date: '', status: 'Active', notes: ''
   });
@@ -499,7 +507,7 @@ const CampaignsView = ({
                 <select
                   className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-2xl p-4 text-sm focus:border-primary/50"
                   value={campaignForm.status}
-                  onChange={e => setCampaignForm(p => ({...p, status: e.target.value}))}
+                  onChange={e => setCampaignForm(p => ({...p, status: e.target.value as Campaign['status']}))}
                 >
                   <option value="Active">Active</option>
                   <option value="Paused">Paused</option>
@@ -2045,7 +2053,7 @@ function LeadModalForm({ lead, onSave, onCancel }: { lead: Lead | null; onSave: 
         ))}
         <div>
           <label className="text-[10px] font-bold uppercase tracking-widest mb-2 block text-[#666]">Priority</label>
-          <select value={form.priority} onChange={e => setForm(p => ({ ...p, priority: e.target.value }))} className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-2xl p-4 text-sm">
+          <select value={form.priority} onChange={e => setForm(p => ({ ...p, priority: e.target.value as 'Low' | 'Medium' | 'High' }))} className="w-full bg-[#1A1A2E] border border-[#2A2A45] rounded-2xl p-4 text-sm">
             {PRIORITIES.map(p => <option key={p}>{p}</option>)}
           </select>
         </div>
@@ -2074,6 +2082,7 @@ function Tag({ children, color = "#3B82F6" }: { children: React.ReactNode; color
 interface BtnProps {
   children: React.ReactNode;
   onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
   color?: string;
   outline?: boolean;
   small?: boolean;
@@ -2082,9 +2091,10 @@ interface BtnProps {
   className?: string;
 }
 
-function Btn({ children, onClick, color = "#FF6B35", outline = false, small = false, disabled = false, style = {}, className = "" }: BtnProps) {
+function Btn({ children, onClick, type = "button", color = "#FF6B35", outline = false, small = false, disabled = false, style = {}, className = "" }: BtnProps) {
   return (
     <button
+      type={type}
       onClick={onClick}
       disabled={disabled}
       className={`font-poppins font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${className}`}

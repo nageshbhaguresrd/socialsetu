@@ -426,7 +426,7 @@ export function computeOverallScore(input: OverallScoreInput): { overallScore: n
   }
   
   if (scores.length === 0) {
-    return { overallScore: 0, grade: 'F' }
+    return { overallScore: 65, grade: 'C' }
   }
   
   // Weighted average

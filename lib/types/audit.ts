@@ -27,6 +27,7 @@ export interface AuditScores {
 export interface AuditReport {
   summary: string
   overallScore: number
+  auditMode?: 'live' | 'ai_benchmark' | 'hybrid'
   scores: {
     profileCompleteness: number
     contentConsistency: number
@@ -41,6 +42,8 @@ export interface AuditReport {
       strengths: string[]
       weaknesses: string[]
       quickWins: string[]
+      dataSource?: 'live' | 'ai_benchmark'
+      metricsSummary?: Record<string, any>
     }
   }
   topIssues: string[]
