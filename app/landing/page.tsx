@@ -11,6 +11,7 @@ import Link from 'next/link';
 export default function LandingPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
+  const [generatedReportUrl, setGeneratedReportUrl] = useState('');
 
   const [values, setValues] = useState({
     name: '',
@@ -79,8 +80,16 @@ export default function LandingPage() {
         return
       }
 
+      const resData = await response.json().catch(() => ({}));
       setFormSuccess(true);
-      setFieldErrors({})
+      setFieldErrors({});
+
+      if (resData.reportUrl) {
+        setGeneratedReportUrl(resData.reportUrl);
+        setTimeout(() => {
+          window.location.href = resData.reportUrl;
+        }, 1200);
+      }
     } catch {
       setFormError('Something went wrong. Please WhatsApp us.');
     } finally {
@@ -115,10 +124,22 @@ export default function LandingPage() {
           {/* Form / CTA */}
           <div id="audit-form" className="max-w-xl mx-auto bg-white p-8 rounded-3xl shadow-xl shadow-indigo-100/50 border border-indigo-100 text-left">
             {formSuccess ? (
-              <div className="text-center py-10">
-                <CheckCircle size={64} className="text-emerald-500 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold">Audit Requested!</h3>
-                <p className="text-slate-600 mt-2">We&apos;ll contact you within 2 hours.</p>
+              <div className="text-center py-10 space-y-4">
+                <CheckCircle size={64} className="text-emerald-500 mx-auto" />
+                <h3 className="text-2xl font-bold">Audit Generated Successfully!</h3>
+                <p className="text-slate-600 max-w-sm mx-auto">
+                  We analyzed your brand presence. Opening your live growth scorecard &amp; 90-day roadmap...
+                </p>
+                {generatedReportUrl && (
+                  <div className="pt-2">
+                    <a
+                      href={generatedReportUrl}
+                      className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-indigo-200 transition-all hover:scale-105"
+                    >
+                      View Full Audit Report Now →
+                    </a>
+                  </div>
+                )}
               </div>
             ) : (
               <>
@@ -179,8 +200,19 @@ export default function LandingPage() {
 
                   {formError && <p className="text-red-600 text-sm font-semibold mt-1">{formError}</p>}
 
-                  <button type="submit" disabled={formLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 transition-all transform hover:scale-[1.02] active:scale-95 mt-4">
-                    {formLoading ? 'Sending...' : 'Get My Free Audit (Worth ₹5,000)'}
+                  <button
+                    type="submit"
+                    disabled={formLoading}
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 transition-all transform hover:scale-[1.01] active:scale-95 mt-4 disabled:opacity-75 flex items-center justify-center gap-2"
+                  >
+                    {formLoading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Analyzing Brand &amp; Generating Report...</span>
+                      </>
+                    ) : (
+                      'Get My Free Audit (Worth ₹5,000) →'
+                    )}
                   </button>
                   <p className="text-xs text-slate-400 text-center mt-4">
                     By signing up, you agree to receive a 1-on-1 strategy call. No obligation to purchase.

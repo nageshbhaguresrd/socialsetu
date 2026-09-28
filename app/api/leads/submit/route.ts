@@ -2,6 +2,7 @@ import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import { sendLeadNotification } from '@/lib/email/resend';
 import { sendTelegramLeadAlert } from '@/lib/notifications/telegram';
+import { generateAutoAudit } from '@/lib/audit/autoAudit';
 import { contactSubmissionSchema } from '@/lib/validation/schemas';
 import { logActivity } from '@/lib/supabase/logActivity';
 
@@ -60,10 +61,13 @@ export async function POST(req: Request) {
       return Math.min(score, 99);
     };
 
+    let newLead: any = null;
+    let auditResult: any = null;
+
     try {
       const leadData = {
         name,
-        business: industry || 'Unknown',
+        business: body.website || industry || 'Unknown',
         city: city || 'Unknown',
         industry: industry || 'General',
         budget: budget || 'Not specified',
@@ -82,8 +86,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Name is required' }, { status: 400 });
       }
 
-
-      const { data: newLead, error: leadError } = await supabase
+      const { data: insertedLead, error: leadError } = await supabase
         .from('leads')
         .insert(leadData)
         .select()
@@ -91,6 +94,8 @@ export async function POST(req: Request) {
 
       if (leadError) {
         console.error('Supabase lead error:', leadError);
+      } else {
+        newLead = insertedLead;
       }
 
       if (newLead) {
@@ -104,21 +109,43 @@ export async function POST(req: Request) {
       console.error('Lead insert error:', leadInsertError);
     }
 
+    // Auto-generate Digital Presence Audit if coming from audit form or website/handle provided
+    const shouldGenerateAudit = source === 'audit_form' || Boolean(body.website);
+    if (shouldGenerateAudit) {
+      try {
+        auditResult = await generateAutoAudit({
+          clientName: name,
+          leadId: newLead?.id,
+          clientEmail: email,
+          industry: industry || 'Digital Business',
+          websiteOrHandle: body.website || industry,
+        });
+      } catch (auditErr) {
+        console.error('Auto-audit generation error:', auditErr);
+      }
+    }
+
     sendLeadNotification(body).catch(console.error);
 
     sendTelegramLeadAlert({
       name,
-      business: industry || 'Unknown',
+      business: body.website || industry || 'Unknown',
       phone,
       email,
       city,
       industry,
       budget,
-      score: calculateLeadScore(budget || '', industry || '', source || ''),
+      score: auditResult?.overallScore || calculateLeadScore(budget || '', industry || '', source || ''),
       source: source === 'audit_form' ? 'Free Audit Form' : 'Website Contact',
     }).catch(console.error);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      leadId: newLead?.id,
+      auditId: auditResult?.auditId,
+      reportUrl: auditResult?.reportUrl,
+      overallScore: auditResult?.overallScore,
+    });
   } catch (error) {
     console.error('API error:', error);
     return NextResponse.json({ error: 'Submission failed' }, { status: 500 });
