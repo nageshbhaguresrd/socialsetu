@@ -7,8 +7,10 @@ import {
   Menu, X, Check, ArrowRight, Instagram, Linkedin, MessageSquare, 
   Video, BarChart3, Users, Clock, Globe, Briefcase, Phone, Mail, 
   MapPin, ChevronDown, Star, Zap, Rocket, TrendingUp, ShieldCheck,
-  Search, Youtube, Twitter, Facebook, ExternalLink, Filter
+  Search, Youtube, Twitter, Facebook, ExternalLink, Filter, Calculator
 } from 'lucide-react';
+import ROICalculator from '@/components/ROICalculator';
+import RetainerBookingModal from '@/components/RetainerBookingModal';
 
 // Pricing Data
 const pricingPlans = [
@@ -134,6 +136,8 @@ export default function SocialSetuPage() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [activeInd, setActiveInd] = useState(0);
   const [isAnnounceVisible, setIsAnnounceVisible] = useState(true);
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
+  const [selectedPlanForModal, setSelectedPlanForModal] = useState('Growth');
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -229,6 +233,9 @@ export default function SocialSetuPage() {
           <div className="hidden lg:flex items-center gap-8 text-sm font-semibold tracking-wide">
             <a href="#home" className="hover:text-primary transition-colors">Home</a>
             <a href="#services" className="hover:text-primary transition-colors">Services</a>
+            <a href="#roi-calculator" className="hover:text-primary transition-colors flex items-center gap-1.5 text-white/90">
+              <Calculator className="w-4 h-4 text-primary" /> ROI Calculator
+            </a>
             <Link href="/case-studies" className="hover:text-primary transition-colors">Case Studies</Link>
             <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>
             <a href="#pricing" className="hover:text-primary transition-colors">Pricing</a>
@@ -256,6 +263,9 @@ export default function SocialSetuPage() {
               className="absolute top-full left-0 w-full bg-secondary p-10 flex flex-col gap-6 text-center lg:hidden border-b border-white/5"
             >
               <a href="#home" onClick={() => setIsMenuOpen(false)} className="text-xl font-bold">Home</a>
+              <a href="#roi-calculator" onClick={() => setIsMenuOpen(false)} className="text-xl font-bold text-primary flex items-center justify-center gap-2">
+                <Calculator size={20} /> ROI Calculator
+              </a>
               <Link href="/case-studies" onClick={() => setIsMenuOpen(false)} className="text-xl font-bold">Case Studies</Link>
               <Link href="/blog" onClick={() => setIsMenuOpen(false)} className="text-xl font-bold">Blog</Link>
               <a href="#pricing" onClick={() => setIsMenuOpen(false)} className="text-xl font-bold">Pricing</a>
@@ -627,6 +637,14 @@ export default function SocialSetuPage() {
         </div>
       </section>
 
+      {/* 10.5 ROI CALCULATOR */}
+      <section id="roi-calculator" className="py-24 px-6 max-w-7xl mx-auto">
+        <ROICalculator onSelectPlan={(plan) => {
+          setSelectedPlanForModal(plan);
+          setBookingModalOpen(true);
+        }} />
+      </section>
+
       {/* 11. PRICING SECTION */}
       <section id="pricing" className="py-32 px-6 bg-accent/20">
         <div className="max-w-7xl mx-auto">
@@ -675,7 +693,13 @@ export default function SocialSetuPage() {
                     ))}
                   </div>
                 </div>
-                <button className={`w-full py-5 rounded-2xl font-bold transition-all text-lg ${plan.popular ? 'gradient-btn' : 'bg-white/5 hover:bg-white/10'}`}>
+                <button 
+                  onClick={() => {
+                    setSelectedPlanForModal(plan.name);
+                    setBookingModalOpen(true);
+                  }}
+                  className={`w-full py-5 rounded-2xl font-bold transition-all text-lg cursor-pointer ${plan.popular ? 'gradient-btn hover:scale-[1.02]' : 'bg-white/5 hover:bg-white/10'}`}
+                >
                   Choose {plan.name}
                 </button>
               </motion.div>
@@ -949,6 +973,14 @@ export default function SocialSetuPage() {
       >
         <ChevronDown className="rotate-180" />
       </button>
+
+      {/* Retainer Package Booking Modal */}
+      <RetainerBookingModal 
+        isOpen={bookingModalOpen}
+        onClose={() => setBookingModalOpen(false)}
+        initialPlan={selectedPlanForModal}
+        period={pricingPeriod}
+      />
 
     </div>
   );

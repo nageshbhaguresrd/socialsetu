@@ -1497,17 +1497,39 @@ const InvoiceModal = ({ lead, onClose }: { lead: Lead; onClose: () => void }) =>
             <span>Total Payable:</span>
             <span className="font-mono text-[#10B981]">Rs. {total.toLocaleString('en-IN')}</span>
           </div>
+          <div className="flex justify-between text-[11px] text-gray-400 pt-1 border-t border-[#2A2A45]/50">
+            <span>Primary Agency UPI:</span>
+            <span className="font-mono text-purple-300 font-semibold">7276119511@ybl</span>
+          </div>
         </div>
 
-        <div className="flex gap-3 pt-2">
-          <button onClick={onClose} className="flex-1 py-3 text-xs font-bold text-text hover:text-white rounded-xl border border-[#1E1E35]">
-            Cancel
-          </button>
-          <Btn disabled={downloading} onClick={handleDownload} className="flex-1 py-3">
-            {downloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-            {downloading ? 'Generating PDF...' : 'Download PDF Invoice'}
-          </Btn>
-        </div>
+        {(() => {
+          const cleanPhone = (lead.phone || '').replace(/[^0-9]/g, '');
+          const recipientPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone || process.env.NEXT_PUBLIC_AGENCY_PHONE || '917276119511';
+          const whatsappInvoiceMessage = encodeURIComponent(
+            `Hi ${lead.name}!\n\nHere is your official invoice summary from SocialSetu for *${lead.business || 'Marketing Retainer'}*:\n\n• Subtotal: ₹${subtotal.toLocaleString('en-IN')}\n• GST (18%): ₹${gst.toLocaleString('en-IN')}\n• *Total Payable: ₹${total.toLocaleString('en-IN')}*\n\n💳 *Direct UPI Payment Details:*\nUPI ID: 7276119511@ybl\nBeneficiary: SocialSetu Agency\n\nPlease share the payment screenshot once transferred to initiate onboarding!`
+          );
+
+          return (
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <button onClick={onClose} className="py-3 px-4 text-xs font-bold text-text hover:text-white rounded-xl border border-[#1E1E35]">
+                Cancel
+              </button>
+              <a
+                href={`https://wa.me/${recipientPhone}?text=${whatsappInvoiceMessage}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 py-3 px-3 bg-[#10B981] hover:bg-[#10B981]/90 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02]"
+              >
+                <Send size={15} /> WhatsApp UPI Invoice
+              </a>
+              <Btn disabled={downloading} onClick={handleDownload} className="flex-1 py-3">
+                {downloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                {downloading ? 'Generating PDF...' : 'Download PDF Invoice'}
+              </Btn>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

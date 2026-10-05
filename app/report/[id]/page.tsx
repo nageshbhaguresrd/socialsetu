@@ -20,8 +20,12 @@ import {
   Check,
   ArrowRight,
   Sparkles,
+  PhoneCall,
+  Calculator,
+  Copy,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import RetainerBookingModal from '@/components/RetainerBookingModal';
 
 const PLATFORM_ICONS: Record<string, any> = {
   youtube: Youtube,
@@ -57,6 +61,7 @@ export default function PublicReportPage({
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -146,6 +151,40 @@ export default function PublicReportPage({
 
   const whatsappMessage = encodeURIComponent(
     `Hi SocialSetu team! I reviewed my brand audit report for "${audit.client_name}" (Overall Score: ${overallScore}/100). I'd like to book a 30-minute free growth strategy call.`
+  );
+
+  const recommendedTier = overallScore < 55
+    ? {
+        name: 'Starter',
+        priceNumber: 10000,
+        price: '₹10,000',
+        period: 'month',
+        badge: 'Recommended for Quick Foundation',
+        reason: 'Your digital footprint currently lacks consistent posting cadence and profile optimization. The Starter Retainer fixes your branding foundation and reactivates organic reach.',
+        deliverables: ['15 Custom High-Impact Posts/mo', '2 Core Social Platforms Managed', 'Bio, Highlight & Profile Revamp', '1 Sponsored Ad Boost Monthly', 'WhatsApp Growth Support'],
+      }
+    : overallScore <= 75
+    ? {
+        name: 'Growth',
+        priceNumber: 30000,
+        price: '₹30,000',
+        period: 'month',
+        badge: 'Top Pick for Inbound Lead Velocity',
+        reason: 'Your brand has good foundations but is missing a consistent inbound customer acquisition engine. The Growth Retainer installs targeted Meta Ads and 4 high-production Reels every month.',
+        deliverables: ['Daily Brand Content (30 Posts/mo)', '4 Social Platforms Managed', 'Meta Ad Lead Campaigns (up to ₹50K budget)', '4 Viral Reels Production / Month', 'Bi-weekly Strategy & ROI Calls', 'Dedicated Account Manager'],
+      }
+    : {
+        name: 'Premium',
+        priceNumber: 75000,
+        price: '₹75,000',
+        period: 'month',
+        badge: 'Enterprise & Omnichannel Domination',
+        reason: 'Your brand is ready for aggressive multi-city scale. The Premium Retainer combines omnichannel Meta + Google Ad engines, 12 Reels monthly, and influencer amplification.',
+        deliverables: ['Unlimited Multi-Format Content', 'All Major Platforms Managed', 'Meta + Google Ad Engine Management', '12 Cinematic Reels + 2 YT Shorts', 'Influencer Outreach & Collabs', 'Weekly Executive ROI Dashboard'],
+      };
+
+  const whatsappPackageMessage = encodeURIComponent(
+    `Hi SocialSetu team! I reviewed our live audit report for "${audit.client_name}" (Audit Score: ${overallScore}/100, Grade ${grade}). We would like to initiate the *${recommendedTier.name} Retainer (${recommendedTier.price}/mo)*. Can we discuss next steps?`
   );
 
   return (
@@ -472,6 +511,79 @@ export default function PublicReportPage({
           </div>
         )}
 
+        {/* Recommended Retainer Package based on Score */}
+        <div className="bg-gradient-to-b from-[#14142B] to-[#0E0E1F] border border-[#FF6B35]/40 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-72 h-72 bg-[#FF6B35]/15 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+          
+          <div className="relative z-10 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2A2A45] pb-6">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF6B35]/15 border border-[#FF6B35]/30 text-[#FF6B35] text-xs font-bold mb-2">
+                  <Sparkles size={14} /> AI Score Diagnosis Match
+                </div>
+                <h3 className="text-2xl md:text-3xl font-extrabold text-white">
+                  Recommended Retainer: <span className="text-[#FF6B35]">{recommendedTier.name} Package</span>
+                </h3>
+                <p className="text-gray-400 text-xs md:text-sm mt-1 max-w-xl">
+                  {recommendedTier.reason}
+                </p>
+              </div>
+
+              <div className="sm:text-right shrink-0">
+                <div className="text-3xl md:text-4xl font-black font-mono text-white">
+                  {recommendedTier.price}
+                  <span className="text-xs text-gray-400 font-sans font-normal"> /{recommendedTier.period}</span>
+                </div>
+                <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                  {recommendedTier.badge}
+                </span>
+              </div>
+            </div>
+
+            {/* Deliverables Checklist */}
+            <div className="space-y-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-400 block">
+                What SocialSetu Will Execute For Your Brand:
+              </span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {recommendedTier.deliverables.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2.5 bg-[#1A1A2E]/70 border border-[#2A2A45] rounded-xl px-4 py-3 text-xs text-gray-200">
+                    <CheckCircle2 size={16} className="text-[#10B981] shrink-0" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Fast Action CTA */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#1A1A2E]/40 border border-[#2A2A45] rounded-2xl p-5">
+              <div className="text-xs text-gray-400">
+                Want to calculate potential ROI first?{' '}
+                <Link href="/#roi-calculator" className="text-[#FF6B35] font-bold hover:underline inline-flex items-center gap-1">
+                  <Calculator size={13} /> Check ROI Calculator
+                </Link>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                <button
+                  onClick={() => setBookingModalOpen(true)}
+                  className="w-full sm:w-auto bg-[#FF6B35] hover:bg-[#FF6B35]/90 text-white font-bold px-6 py-3.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-[#FF6B35]/25 transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
+                >
+                  <Rocket size={15} /> Book {recommendedTier.name} Retainer
+                </button>
+                <a
+                  href={`https://wa.me/${process.env.NEXT_PUBLIC_AGENCY_PHONE || '917276119511'}?text=${whatsappPackageMessage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto bg-[#10B981] hover:bg-[#10B981]/90 text-white font-bold px-6 py-3.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 whitespace-nowrap"
+                >
+                  <PhoneCall size={15} /> WhatsApp Package Details
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Conversion CTA Box */}
         <div className="relative overflow-hidden bg-gradient-to-r from-[#1A102E] via-[#2A1020] to-[#1F0E05] border border-[#FF6B35]/30 rounded-3xl p-8 md:p-12 text-center">
           <div className="max-w-2xl mx-auto space-y-4">
@@ -505,6 +617,15 @@ export default function PublicReportPage({
           </div>
         </div>
       </div>
+
+      {/* Retainer Package Booking Modal */}
+      <RetainerBookingModal
+        isOpen={bookingModalOpen}
+        onClose={() => setBookingModalOpen(false)}
+        initialPlan={recommendedTier.name}
+        initialPrice={recommendedTier.priceNumber}
+        initialBusiness={audit.client_name || ''}
+      />
     </div>
   );
 }
