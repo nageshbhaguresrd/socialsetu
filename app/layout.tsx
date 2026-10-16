@@ -19,6 +19,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://socialsetu.vercel.app'),
   title: 'SocialSetu - #1 Social Media Marketing Agency in India',
   description: "India's Growth Partner — From Kashmir to Kanyakumari. We specialize in Social Media Management, Meta Ads, and Regional Content for brands across India.",
   keywords: ['social media marketing', 'digital marketing India', 'meta ads', 'regional content', 'socialsetu'],
@@ -46,6 +47,7 @@ export const metadata: Metadata = {
     },
   },
 };
+
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (

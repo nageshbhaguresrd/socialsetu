@@ -64,11 +64,30 @@ export default function PublicReportPage({
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
 
   useEffect(() => {
+    if (!audit?.id) return;
+    const supabase = createClient();
+    const channel = supabase.channel('public:audits')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'audits',
+        filter: `id=eq.${audit.id}`,
+      }, (payload: any) => {
+        if (payload?.new) {
+          setAudit(payload.new);
+        }
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [audit?.id]);
+
+  useEffect(() => {
     const fetchReport = async () => {
       if (!id) return;
       try {
         const supabase = createClient();
-        // Query by share_id or by id
         const { data, error } = await supabase
           .from('audits')
           .select('*')

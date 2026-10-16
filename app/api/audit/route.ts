@@ -226,7 +226,8 @@ export async function POST(request: NextRequest) {
         status: 'processing',
       })
       .select()
-      .single()
+      .single();
+      console.debug('✅ Audit inserted:', audit);
 
     if (insertError || !audit) {
       return NextResponse.json(

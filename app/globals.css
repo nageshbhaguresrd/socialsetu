@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "../styles/ui/neomorphism.css";
+@import "../styles/ui/glass.css";
 
 @theme {
   --color-primary: #FF6B35;

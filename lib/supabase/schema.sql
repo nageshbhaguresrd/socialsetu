@@ -58,6 +58,7 @@ CREATE INDEX IF NOT EXISTS activities_lead_id_idx ON lead_activities(lead_id, cr
 
 -- Run in Supabase SQL editor to enable realtime:
 -- ALTER PUBLICATION supabase_realtime ADD TABLE leads;
+-- ALTER PUBLICATION supabase_realtime ADD TABLE audits;
 
 CREATE TABLE IF NOT EXISTS wa_templates (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

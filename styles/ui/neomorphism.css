@@ -1,0 +1,32 @@
+/* Neomorphism utilities */
+.neomorph-header {
+  --bg:#f0f0f0;
+  background: var(--bg);
+  border-radius: 12px;
+  box-shadow: 8px 8px 16px #c5c5c5, -8px -8px 16px #ffffff;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.neomorph-link {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: var(--bg);
+  box-shadow: inset 2px 2px 4px #c5c5c5, inset -2px -2px 4px #ffffff;
+  transition: transform .2s;
+}
+.neomorph-link:hover {
+  transform: translateY(-2px);
+}
+.neomorph-btn {
+  background: var(--bg);
+  border-radius: 8px;
+  box-shadow: 4px 4px 8px #c5c5c5, -4px -4px 8px #ffffff;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: transform .1s;
+}
+.neomorph-btn:active {
+  transform: scale(0.97);
+}
