@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { createClient } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 // const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getSupabaseAdmin(); // Must use admin client - reminders table has RLS
     const today = getTodayInIST();
     const { data: reminders, error } = await supabase
       .from('reminders')

@@ -15,8 +15,10 @@ interface AuditRequestBody {
     twitter?: string
     linkedin?: string
     facebook?: string
+    website?: string
   }
 }
+
 
 // Timeout constants (milliseconds)
 const PLATFORM_FETCH_TIMEOUT = 15_000 // 15 seconds per platform
@@ -102,61 +104,72 @@ async function doProcessAudit(auditId: string, body: AuditRequestBody): Promise<
     const { fetchYouTubeData } = await import('@/lib/audit/youtube')
     const { fetchInstagramData } = await import('@/lib/audit/instagram')
     const { fetchTwitterData } = await import('@/lib/audit/twitter')
+    const { fetchLinkedInData } = await import('@/lib/audit/linkedin')
+    const { fetchFacebookData } = await import('@/lib/audit/facebook')
+    const { fetchWebsiteSEOData } = await import('@/lib/audit/website')
     const { analyzeAudit } = await import('@/lib/audit/analyzer')
     
     logAudit('Fetching platform data', auditId)
     
-    // Fetch platform data with individual timeouts
-    const [youtube, instagram, twitter] = await Promise.allSettled([
+    // Fetch all platform data concurrently with individual timeouts
+    const [youtube, instagram, twitter, linkedin, facebook, website] = await Promise.allSettled([
       body.platforms.youtube 
-        ? fetchWithTimeout(
-            fetchYouTubeData(body.platforms.youtube),
-            PLATFORM_FETCH_TIMEOUT,
-            'YouTube data fetch'
-          )
+        ? fetchWithTimeout(fetchYouTubeData(body.platforms.youtube), PLATFORM_FETCH_TIMEOUT, 'YouTube data fetch')
         : Promise.resolve(undefined),
       body.platforms.instagram 
-        ? fetchWithTimeout(
-            fetchInstagramData(body.platforms.instagram),
-            PLATFORM_FETCH_TIMEOUT,
-            'Instagram data fetch'
-          )
+        ? fetchWithTimeout(fetchInstagramData(body.platforms.instagram), PLATFORM_FETCH_TIMEOUT, 'Instagram data fetch')
         : Promise.resolve(undefined),
       body.platforms.twitter 
-        ? fetchWithTimeout(
-            fetchTwitterData(body.platforms.twitter),
-            PLATFORM_FETCH_TIMEOUT,
-            'Twitter data fetch'
-          )
+        ? fetchWithTimeout(fetchTwitterData(body.platforms.twitter), PLATFORM_FETCH_TIMEOUT, 'Twitter data fetch')
+        : Promise.resolve(undefined),
+      body.platforms.linkedin
+        ? fetchWithTimeout(fetchLinkedInData(body.platforms.linkedin), PLATFORM_FETCH_TIMEOUT, 'LinkedIn data fetch')
+        : Promise.resolve(undefined),
+      body.platforms.facebook
+        ? fetchWithTimeout(fetchFacebookData(body.platforms.facebook), PLATFORM_FETCH_TIMEOUT, 'Facebook data fetch')
+        : Promise.resolve(undefined),
+      body.platforms.website
+        ? fetchWithTimeout(fetchWebsiteSEOData(body.platforms.website), PLATFORM_FETCH_TIMEOUT, 'Website SEO fetch')
         : Promise.resolve(undefined),
     ])
     
     // Log any platform fetch failures but continue
-    if (youtube.status === 'rejected') {
-      logAudit('YouTube fetch failed', auditId, { error: youtube.reason })
+    const platformResults: Record<string, { status: string; reason?: string }> = {
+      youtube: youtube.status,
+      instagram: instagram.status,
+      twitter: twitter.status,
+      linkedin: linkedin.status,
+      facebook: facebook.status,
+      website: website.status,
     }
-    if (instagram.status === 'rejected') {
-      logAudit('Instagram fetch failed', auditId, { error: instagram.reason })
+    for (const [platform, result] of Object.entries({ youtube, instagram, twitter, linkedin, facebook, website })) {
+      if ((result as PromiseRejectedResult).status === 'rejected') {
+        logAudit(`${platform} fetch failed`, auditId, { error: (result as PromiseRejectedResult).reason })
+      }
     }
-    if (twitter.status === 'rejected') {
-      logAudit('Twitter fetch failed', auditId, { error: twitter.reason })
-    }
+    logAudit('Platform fetch results', auditId, platformResults)
     
     // Build audit input from successful fetches only
     const auditInput = {
       clientName: body.clientName,
-      industry: body.industry || 'Digital Creator', // Safe fallback
+      industry: body.industry || 'Digital Creator',
       targetAudience: body.targetAudience,
       businessGoal: body.businessGoal,
       youtube: youtube.status === 'fulfilled' ? youtube.value : undefined,
       instagram: instagram.status === 'fulfilled' ? instagram.value : undefined,
       twitter: twitter.status === 'fulfilled' ? twitter.value : undefined,
+      linkedin: linkedin.status === 'fulfilled' ? linkedin.value : undefined,
+      facebook: facebook.status === 'fulfilled' ? facebook.value : undefined,
+      website: website.status === 'fulfilled' ? website.value : undefined,
     }
     
     logAudit('Running AI analysis', auditId, { 
-      hasYoutube: !!auditInput.youtube,
-      hasInstagram: !!auditInput.instagram,
-      hasTwitter: !!auditInput.twitter
+      hasYoutube: !!auditInput.youtube && !(auditInput.youtube as any)?.error,
+      hasInstagram: !!auditInput.instagram && !(auditInput.instagram as any)?.error,
+      hasTwitter: !!auditInput.twitter && !(auditInput.twitter as any)?.error,
+      hasLinkedIn: !!auditInput.linkedin && !(auditInput.linkedin as any)?.error,
+      hasFacebook: !!auditInput.facebook && !(auditInput.facebook as any)?.error,
+      hasWebsite: !!auditInput.website && !(auditInput.website as any)?.error,
     })
     
     // Run analysis with timeout

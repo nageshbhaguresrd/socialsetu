@@ -172,3 +172,109 @@ CREATE POLICY "Authed can update audits"
 CREATE INDEX IF NOT EXISTS audits_lead_id_idx ON audits(lead_id);
 CREATE INDEX IF NOT EXISTS audits_status_idx ON audits(status);
 CREATE INDEX IF NOT EXISTS audits_created_at_idx ON audits(created_at DESC);
+
+-- =====================================================
+-- Missing RLS Policies for reminders
+-- =====================================================
+CREATE POLICY "Allow authenticated users to select reminders"
+  ON reminders FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "Allow authenticated users to insert reminders"
+  ON reminders FOR INSERT TO authenticated WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated users to update reminders"
+  ON reminders FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated users to delete reminders"
+  ON reminders FOR DELETE TO authenticated USING (true);
+
+-- =====================================================
+-- Missing RLS Policies for campaigns
+-- =====================================================
+CREATE POLICY "Allow authenticated users to select campaigns"
+  ON campaigns FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "Allow authenticated users to insert campaigns"
+  ON campaigns FOR INSERT TO authenticated WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated users to update campaigns"
+  ON campaigns FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated users to delete campaigns"
+  ON campaigns FOR DELETE TO authenticated USING (true);
+
+-- =====================================================
+-- Enable and add RLS for wa_templates
+-- =====================================================
+ALTER TABLE wa_templates ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow authenticated users to select wa_templates"
+  ON wa_templates FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "Allow anyone to insert wa_templates"
+  ON wa_templates FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated users to update wa_templates"
+  ON wa_templates FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated users to delete wa_templates"
+  ON wa_templates FOR DELETE TO authenticated USING (true);
+
+-- =====================================================
+-- Missing columns on leads
+-- =====================================================
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS assigned_to uuid;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS tags text[] DEFAULT ARRAY[]::text[];
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS stage_updated_at timestamptz DEFAULT now();
+
+-- =====================================================
+-- Missing columns on reminders
+-- =====================================================
+ALTER TABLE reminders ADD COLUMN IF NOT EXISTS assigned_to uuid;
+
+-- =====================================================
+-- Missing columns on campaigns
+-- =====================================================
+ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS client_id uuid REFERENCES leads(id) ON DELETE SET NULL;
+
+-- =====================================================
+-- Invoices table (for tracking PDF invoices and payment status)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS invoices (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  lead_id uuid REFERENCES leads(id) ON DELETE SET NULL,
+  invoice_number text NOT NULL,
+  amount integer NOT NULL DEFAULT 0,
+  gst_amount integer NOT NULL DEFAULT 0,
+  total_amount integer NOT NULL DEFAULT 0,
+  status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','sent','paid','overdue','cancelled')),
+  items jsonb NOT NULL DEFAULT '[]',
+  notes text DEFAULT '',
+  due_date date,
+  paid_at timestamptz,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow authenticated users to select invoices"
+  ON invoices FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "Allow authenticated users to insert invoices"
+  ON invoices FOR INSERT TO authenticated WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated users to update invoices"
+  ON invoices FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS invoices_lead_id_idx ON invoices(lead_id);
+CREATE INDEX IF NOT EXISTS invoices_status_idx ON invoices(status);
+
+-- =====================================================
+-- Enable realtime for live CRM updates
+-- =====================================================
+-- Run in Supabase SQL Editor:
+-- ALTER PUBLICATION supabase_realtime ADD TABLE leads;
+-- ALTER PUBLICATION supabase_realtime ADD TABLE audits;
+-- ALTER PUBLICATION supabase_realtime ADD TABLE reminders;
+-- ALTER PUBLICATION supabase_realtime ADD TABLE campaigns;

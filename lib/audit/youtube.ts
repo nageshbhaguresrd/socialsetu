@@ -130,7 +130,8 @@ export async function fetchYouTubeData(handle: string): Promise<YouTubeData> {
 
     const totalLikes = recentVideos.reduce((s, v) => s + v.likeCount, 0)
     const totalComments = recentVideos.reduce((s, v) => s + v.commentCount, 0)
-    const estimatedEngagementRate = Math.min(100, viewCount > 0 ? ((totalLikes + totalComments) / viewCount) * 100 : 0)
+    // Fix: use totalViews of recent videos, NOT all-time channel viewCount
+    const estimatedEngagementRate = Math.min(100, totalViews > 0 ? ((totalLikes + totalComments) / totalViews) * 100 : 0)
 
     return {
       channelId,
