@@ -123,8 +123,9 @@ ALTER TABLE campaigns ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audits ENABLE ROW LEVEL SECURITY;
 
 -- Policies for leads
-CREATE POLICY "Allow authenticated users to select leads" 
-  ON leads FOR SELECT TO authenticated USING (true);
+-- Allow public and authenticated users to select leads (needed for .insert().select().single() on anon forms)
+CREATE POLICY "Allow public to select leads" 
+  ON leads FOR SELECT USING (true);
 
 -- Allow both public form submissions (anon) and authenticated users to insert leads
 CREATE POLICY "Allow insert on leads" 
