@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo, useCallback, useSyncExternalStore } from "react";
+import Link from 'next/link';
 import { motion, AnimatePresence } from "motion/react";
 import { createClient } from '@/lib/supabase/client';
 import { leadSchema } from '@/lib/validation/schemas';
@@ -1769,6 +1770,14 @@ function BrandBhaaratCRM() {
               </button>
             ))}
           </nav>
+          <div className="px-3 pt-3 border-t border-[#1E1E35]">
+            <Link
+              href="/agency"
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#FF6B35] to-[#E85D04] shadow-lg shadow-orange-500/20 hover:scale-[1.02] transition-all"
+            >
+              <Sparkles size={15} /> Social Agency Suite &rarr;
+            </Link>
+          </div>
         </aside>
 
         {/* Main */}
@@ -1780,6 +1789,12 @@ function BrandBhaaratCRM() {
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search leads..." className="w-full bg-[#1A1A2E] border border-[#1E1E35] rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-[#FF6B35]/50" />
             </div>
             <div className="flex items-center gap-3">
+              <Link
+                href="/agency"
+                className="hidden md:flex items-center gap-2 bg-[#1A1A2E] border border-[#2A2A45] hover:border-[#FF6B35] text-slate-200 hover:text-white text-xs font-bold px-3 py-2 rounded-xl transition-all"
+              >
+                <Sparkles size={14} className="text-[#FF6B35]" /> Agency Operations
+              </Link>
               <select value={filterStage} onChange={e => setFilterStage(e.target.value)} className="bg-[#1A1A2E] border border-[#1E1E35] rounded-xl px-3 py-2.5 text-sm outline-none">
                 <option>All</option>
                 {STAGES.map(s => <option key={s}>{s}</option>)}

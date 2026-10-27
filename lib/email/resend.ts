@@ -145,4 +145,35 @@ export async function sendClientAuditEmail({
   }
 }
 
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  from = 'SocialSetu <crm@socialsetu.com>',
+}: {
+  to: string;
+  subject: string;
+  html: string;
+  from?: string;
+}) {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY is not configured; skipping email.');
+    return { success: false, error: 'No RESEND_API_KEY' };
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  try {
+    const data = await resend.emails.send({
+      from,
+      to,
+      subject,
+      html,
+    });
+    return { success: true, data };
+  } catch (err: any) {
+    console.error('Failed to send email:', err);
+    return { success: false, error: err.message };
+  }
+}
+
 
