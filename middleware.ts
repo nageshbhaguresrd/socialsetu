@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
 
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (request.nextUrl.pathname.startsWith('/crm')) {
+    if (request.nextUrl.pathname.startsWith('/crm') || request.nextUrl.pathname.startsWith('/agency')) {
       if (!user) {
         return NextResponse.redirect(new URL('/login', request.url));
       }
@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/crm', request.url));
     }
   } catch {
-    if (request.nextUrl.pathname.startsWith('/crm')) {
+    if (request.nextUrl.pathname.startsWith('/crm') || request.nextUrl.pathname.startsWith('/agency')) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
@@ -58,5 +58,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/crm/:path*', '/login'],
+  matcher: ['/crm/:path*', '/agency/:path*', '/login'],
 };
