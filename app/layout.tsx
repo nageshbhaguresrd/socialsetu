@@ -1,22 +1,5 @@
-import type {Metadata} from 'next';
-import { Inter, Poppins, JetBrains_Mono } from 'next/font/google';
+import type { Metadata } from 'next';
 import './globals.css';
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-});
-
-const poppins = Poppins({
-  weight: ['400', '500', '600', '700', '800'],
-  subsets: ['latin'],
-  variable: '--font-poppins',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://socialsetu.vercel.app'),
@@ -51,7 +34,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${poppins.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning className="antialiased">{children}</body>
     </html>
   );

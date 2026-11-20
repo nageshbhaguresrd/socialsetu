@@ -134,7 +134,7 @@ async function doProcessAudit(auditId: string, body: AuditRequestBody): Promise<
     ])
     
     // Log any platform fetch failures but continue
-    const platformResults: Record<string, { status: string; reason?: string }> = {
+    const platformResults: Record<string, string> = {
       youtube: youtube.status,
       instagram: instagram.status,
       twitter: twitter.status,

@@ -213,7 +213,13 @@ export default function SocialSetuPage() {
             exit={{ height: 0, opacity: 0 }}
             className="bg-primary text-white text-center py-2 px-6 text-sm font-bold flex items-center justify-center relative z-[60]"
           >
-            <span>🇮🇳 Now serving 20+ cities across India — Get your FREE audit today!</span>
+            <div className="flex items-center justify-center gap-2">
+              <span className="font-bold">🚀 AI Virtual IT Company OS Active:</span>
+              <span>Autonomous Multi-Agent Platform operating across 8 Departments & 42 AI Employees!</span>
+              <Link href="/vitos" className="underline font-bold hover:text-white ml-1">
+                Launch AI OS Command Centre &rarr;
+              </Link>
+            </div>
             <button onClick={() => setIsAnnounceVisible(false)} className="absolute right-4 hover:rotate-90 transition-transform">
               <X size={16} />
             </button>
@@ -238,6 +244,10 @@ export default function SocialSetuPage() {
             </a>
             <Link href="/case-studies" className="hover:text-primary transition-colors">Case Studies</Link>
             <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>
+            <Link href="/vitos" className="text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1.5 transition-colors">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              AI Company OS
+            </Link>
             <a href="#pricing" className="hover:text-primary transition-colors">Pricing</a>
             <a href="#contact" className="hover:text-primary transition-colors">Contact</a>
             <Link 

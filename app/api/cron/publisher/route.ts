@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { connectorRegistry } from '@/lib/connectors/registry';
-import { PlatformId, PostPayload } from '@/lib/connectors/base';
+import { PostPayload } from '@/lib/connectors/base';
+import { PlatformId } from '@/lib/types/enterprise';
 
 export async function GET(req: NextRequest) {
   return handlePublisher(req);
