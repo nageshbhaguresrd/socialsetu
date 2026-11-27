@@ -7,6 +7,7 @@ import {
   marketingGenerateSchema,
 } from '../src/lib/validation/bizpilotSchemas';
 import { t } from '../src/lib/i18n';
+import { PublicApisAdapter } from '../src/services/publicApisAdapter';
 
 describe('BizPilot AI Validation Schemas', () => {
   it('validates a valid business creation payload', () => {
@@ -110,5 +111,28 @@ describe('Financial and Pricing Calculations', () => {
     expect(starterPaise / 100).toBe(499);
     expect(proPaise / 100).toBe(1499);
     expect(businessPaise / 100).toBe(4999);
+  });
+});
+
+describe('Public APIs Adapter and Offline Resilience', () => {
+  it('validates recognized Indian business hub cities and states', () => {
+    const pune = PublicApisAdapter.validateIndianLocation('Pune');
+    expect(pune.isRecognized).toBe(true);
+    expect(pune.state).toBe('Maharashtra');
+
+    const ahmedabad = PublicApisAdapter.validateIndianLocation('Ahmedabad');
+    expect(ahmedabad.isRecognized).toBe(true);
+    expect(ahmedabad.state).toBe('Gujarat');
+
+    const unknown = PublicApisAdapter.validateIndianLocation('NonExistentCityXYZ');
+    expect(unknown.isRecognized).toBe(false);
+  });
+
+  it('performs currency conversion or returns fallback gracefully', async () => {
+    const result = await PublicApisAdapter.convertCurrency(10000, 'INR', 'USD');
+    expect(result.from).toBe('INR');
+    expect(result.to).toBe('USD');
+    expect(result.convertedAmount).toBeGreaterThan(0);
+    expect(['frankfurter', 'offline_fallback']).toContain(result.source);
   });
 });
